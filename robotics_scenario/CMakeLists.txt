@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 find_package(nav2_common REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(nav2_util REQUIRED)
+find_package(nav2_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav2_behavior_tree REQUIRED PATHS ${BT_TREE_PATH})
 find_package(robotics_interfaces REQUIRED)
@@ -41,6 +42,7 @@ set(library_name ${PROJECT_NAME})
 set(dependencies
   rclcpp
   nav2_util
+  nav2_msgs
   robotics_interfaces
   behaviortree_cpp_v3
   nav2_behavior_tree
@@ -54,6 +56,18 @@ ament_target_dependencies(${library_name}
   ${dependencies}
 )
 
+add_library(nav2_compute_goal_to_topology_bt_node SHARED
+  plugins/navigate_pose_action_node.cpp
+)
+ament_target_dependencies(nav2_compute_goal_to_topology_bt_node
+  rclcpp
+  nav2_util
+  nav2_msgs
+  behaviortree_cpp_v3
+  nav2_behavior_tree
+)
+target_compile_definitions(nav2_compute_goal_to_topology_bt_node PRIVATE BT_PLUGIN_EXPORT)
+
 add_executable(${library_name}_node
   apps/robotics_scenario_node.cpp
 )
@@ -63,6 +77,12 @@ target_link_libraries(${library_name}_node
 
 install(TARGETS ${library_name}_node
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(TARGETS nav2_compute_goal_to_topology_bt_node
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(DIRECTORY include/

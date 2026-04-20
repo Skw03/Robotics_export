@@ -1,6 +1,7 @@
 #ifndef __ROBOTICS_NAVIGATE_POSE_ACTION_NODE_H__
 #define __ROBOTICS_NAVIGATE_POSE_ACTION_NODE_H__
 
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_behavior_tree/bt_action_node.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
@@ -9,6 +10,8 @@ class NavigatePoseActionNode : public nav2_behavior_tree::BtActionNode<nav2_msgs
 public:
   NavigatePoseActionNode(const std::string &xml_tag_name, const std::string &action_name,
                          const BT::NodeConfiguration &conf);
+
+  void on_tick() override;
 
   static BT::PortsList providedPorts() {
     return providedBasicPorts({
