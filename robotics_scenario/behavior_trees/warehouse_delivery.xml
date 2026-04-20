@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <NavigateToPose goal="{start_goal}" behavior_tree=""/>
+      <NavigateToPose goal="{end_goal}" behavior_tree=""/>
+      <NavigateToPose goal="{return_goal}" behavior_tree=""/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Action ID="NavigateToPose">
+      <input_port name="goal">Goal</input_port>
+      <input_port name="behavior_tree">Behavior tree to run</input_port>
+    </Action>
+  </TreeNodesModel>
+</root>

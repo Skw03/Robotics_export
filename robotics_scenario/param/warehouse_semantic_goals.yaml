@@ -1,0 +1,27 @@
+scene_id: warehouse
+task_type: rack_to_dropoff
+semantic_goals:
+  rack_A1:
+    x: 6.0
+    y: 9.0
+    yaw: 1.57
+  rack_A2:
+    x: 10.0
+    y: 9.0
+    yaw: 1.57
+  rack_B1:
+    x: 14.0
+    y: 9.0
+    yaw: 1.57
+  dropoff_station:
+    x: 17.5
+    y: 2.0
+    yaw: 3.14
+  staging_area:
+    x: 2.0
+    y: 2.0
+    yaw: 0.0
+  charging_dock:
+    x: 18.0
+    y: 10.0
+    yaw: 3.14

@@ -1,0 +1,14 @@
+string scene_id
+string task_type
+string semantic_goal_id
+geometry_msgs/PoseStamped start_pose
+geometry_msgs/PoseStamped end_pose
+geometry_msgs/PoseStamped return_pose
+string behavior_tree
+---
+bool result
+string final_status
+string task_status
+---
+string current_phase
+int32 feedback

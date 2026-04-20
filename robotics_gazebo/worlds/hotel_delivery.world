@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="hotel_delivery">
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/gazebo</namespace>
+      </ros>
+      <update_rate>10.0</update_rate>
+    </plugin>
+    <scene>
+      <ambient>0.85 0.85 0.85 1</ambient>
+      <background>0.95 0.95 0.97 1</background>
+    </scene>
+    <physics name="default_physics" default="1" type="ode">
+      <max_step_size>0.005</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>200</real_time_update_rate>
+    </physics>
+    <light type="directional" name="sun">
+      <pose>0 0 20 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <direction>-0.4 0.2 -1.0</direction>
+    </light>
+    <model name="hotel_floor">
+      <static>true</static>
+      <link name="floor">
+        <collision name="collision"><geometry><plane><normal>0 0 1</normal><size>22 14</size></plane></geometry></collision>
+        <visual name="visual"><geometry><plane><normal>0 0 1</normal><size>22 14</size></plane></geometry><material><ambient>0.92 0.92 0.90 1</ambient><diffuse>0.92 0.92 0.90 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="hotel_shell">
+      <static>true</static>
+      <pose>10 6 0 0 0 0</pose>
+      <link name="layout">
+        <collision name="north_wall"><pose>0 6 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry></collision>
+        <collision name="south_wall"><pose>0 -6 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry></collision>
+        <collision name="west_wall"><pose>-10 0 1.25 0 0 0</pose><geometry><box><size>0.2 12 2.5</size></box></geometry></collision>
+        <collision name="east_wall"><pose>10 0 1.25 0 0 0</pose><geometry><box><size>0.2 12 2.5</size></box></geometry></collision>
+        <collision name="corridor_divider"><pose>0 -1.5 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry></collision>
+        <collision name="room_101_l"><pose>-4.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_101_r"><pose>-0.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_101_b"><pose>-2.5 3 1.25 0 0 0</pose><geometry><box><size>4 0.2 2.5</size></box></geometry></collision>
+        <collision name="room_102_l"><pose>0.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_102_r"><pose>4.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_102_b"><pose>2.5 3 1.25 0 0 0</pose><geometry><box><size>4 0.2 2.5</size></box></geometry></collision>
+        <collision name="room_103_l"><pose>5.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_103_r"><pose>9.5 1.5 1.25 0 0 0</pose><geometry><box><size>0.2 3 2.5</size></box></geometry></collision>
+        <collision name="room_103_b"><pose>7.5 3 1.25 0 0 0</pose><geometry><box><size>4 0.2 2.5</size></box></geometry></collision>
+        <collision name="service_room"><pose>8 -4 1.25 0 0 0</pose><geometry><box><size>4 4 2.5</size></box></geometry></collision>
+        <visual name="north_wall_v"><pose>0 6 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry><material><ambient>0.85 0.85 0.88 1</ambient></material></visual>
+        <visual name="south_wall_v"><pose>0 -6 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry><material><ambient>0.85 0.85 0.88 1</ambient></material></visual>
+        <visual name="west_wall_v"><pose>-10 0 1.25 0 0 0</pose><geometry><box><size>0.2 12 2.5</size></box></geometry><material><ambient>0.85 0.85 0.88 1</ambient></material></visual>
+        <visual name="east_wall_v"><pose>10 0 1.25 0 0 0</pose><geometry><box><size>0.2 12 2.5</size></box></geometry><material><ambient>0.85 0.85 0.88 1</ambient></material></visual>
+        <visual name="corridor_divider_v"><pose>0 -1.5 1.25 0 0 0</pose><geometry><box><size>20 0.2 2.5</size></box></geometry><material><ambient>0.88 0.88 0.90 1</ambient></material></visual>
+      </link>
+    </model>
+    <include><uri>model://desk_brown</uri><name>front_desk</name><pose>2.0 4.0 0 0 0 3.14</pose></include>
+    <include><uri>model://table_dining</uri><name>pickup_table</name><pose>2.0 2.0 0 0 0 1.57</pose></include>
+    <include><uri>model://door_3d</uri><name>door_101</name><pose>6.0 6.05 0 0 0 0</pose></include>
+    <include><uri>model://door_3d</uri><name>door_102</name><pose>11.0 6.05 0 0 0 0</pose></include>
+    <include><uri>model://door_3d</uri><name>door_103</name><pose>16.0 6.05 0 0 0 0</pose></include>
+    <include><uri>model://coffee_table_set_1</uri><name>lounge_table</name><pose>4.5 3.0 0 0 0 0</pose></include>
+    <include><uri>model://blue_bin_cuboid</uri><name>service_cart</name><pose>9.0 4.6 0 0 0 0</pose></include>
+    <include><uri>model://bookshelf_large</uri><name>linen_cabinet</name><pose>18.0 1.0 0 0 0 1.57</pose></include>
+  </world>
+</sdf>
