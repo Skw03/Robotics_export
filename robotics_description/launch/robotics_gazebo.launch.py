@@ -18,7 +18,31 @@ from launch_ros.descriptions import ParameterValue
 from launch.actions import SetEnvironmentVariable
 import os
 
+from ament_index_python.packages import get_package_share_directory
 from scripts import GazeboRosPaths
+
+
+def _normalize_model_path(path_value, fallback_path):
+    if not path_value:
+        return fallback_path
+
+    normalized_paths = []
+    for raw_path in path_value.split(os.pathsep):
+        candidate = raw_path.strip()
+        if not candidate:
+            continue
+
+        candidate_for_match = candidate.replace("\\", "/")
+        if candidate_for_match.endswith("/robotics_gazebo/models") and "ros2_ws" in candidate_for_match:
+            candidate = fallback_path
+
+        if candidate not in normalized_paths:
+            normalized_paths.append(candidate)
+
+    if fallback_path not in normalized_paths:
+        normalized_paths.insert(0, fallback_path)
+
+    return os.pathsep.join(normalized_paths)
 
 
 def generate_launch_description():
@@ -26,12 +50,19 @@ def generate_launch_description():
     model, plugin, media = GazeboRosPaths.get_paths()
 
     gazebo_model_path = os.getenv("GAZEBO_MODEL_PATH", "")
-    robotics_gazebo_model_path = os.path.expanduser(
-        "~/ros2_ws/src/Robotics/robotics_gazebo/models"
+    robotics_gazebo_model_path = os.path.join(
+        get_package_share_directory("robotics_gazebo"), "models"
     )
-    if gazebo_model_path:
-        robotics_gazebo_model_path = f"{gazebo_model_path}:{robotics_gazebo_model_path}"
-    combined_gazebo_model_path = f"{model}:{robotics_gazebo_model_path}"
+    normalized_model_path = _normalize_model_path(model, robotics_gazebo_model_path)
+    combined_gazebo_model_path = os.pathsep.join(
+        path
+        for path in [
+            normalized_model_path,
+            gazebo_model_path,
+            robotics_gazebo_model_path,
+        ]
+        if path
+    )
 
     gazebo_resource_path = os.getenv("GAZEBO_RESOURCE_PATH", "")
     combined_gazebo_resource_path = (
@@ -49,6 +80,15 @@ def generate_launch_description():
     # GAZEBO_MODEL_PATH 환경 변수 설정
     set_gazebo_resource_path = SetEnvironmentVariable(
         name="GAZEBO_RESOURCE_PATH", value=combined_gazebo_resource_path
+    )
+    set_software_rendering = SetEnvironmentVariable(
+        name="LIBGL_ALWAYS_SOFTWARE", value="1"
+    )
+    set_qt_no_mitshm = SetEnvironmentVariable(
+        name="QT_X11_NO_MITSHM", value="1"
+    )
+    set_mesa_driver = SetEnvironmentVariable(
+        name="MESA_LOADER_DRIVER_OVERRIDE", value="llvmpipe"
     )
 
     start_rviz = LaunchConfiguration("start_rviz")
@@ -136,6 +176,9 @@ def generate_launch_description():
             set_gazebo_model_path,
             set_gazebo_plugin_path,
             set_gazebo_resource_path,
+            set_software_rendering,
+            set_qt_no_mitshm,
+            set_mesa_driver,
             # 런치 파일에 사용할 인자들을 정의합니다.
             DeclareLaunchArgument(
                 "start_rviz", default_value="true", description="Whether execute rviz2"

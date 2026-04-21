@@ -1,54 +1,71 @@
 import launch
 
-
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
+from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
-
-# from ament_index_python.packages import get_package_share_directory
-from launch.actions import SetEnvironmentVariable
-import os
 
 
 def generate_launch_description():
-    # 환경 변수 설정
-    gazebo_model_path = os.getenv('GAZEBO_MODEL_PATH', '')
-    new_model_path = os.path.expanduser('~/ros2_ws/src/Robotics/robotics_gazebo/models')
-    combined_gazebo_model_path = f"{gazebo_model_path}:{new_model_path}" if gazebo_model_path else new_model_path
-
-    # GAZEBO_MODEL_PATH 환경 변수 설정
-    set_gazebo_model_path = SetEnvironmentVariable(
-        name='GAZEBO_MODEL_PATH',
-        value=combined_gazebo_model_path
+    use_gazebo_gui = LaunchConfiguration("use_gazebo_gui", default="true")
+    world = LaunchConfiguration("world")
+    gazebo_models_path = PathJoinSubstitution(
+        [FindPackageShare("robotics_gazebo"), "models"]
     )
-
-    # world 파일의 경로를 설정합니다.
-    world_dir= PathJoinSubstitution(
-        [
-            FindPackageShare('robotics_gazebo'),
-            'worlds',
-            'small_city.world'
-        ]
+    default_world = PathJoinSubstitution(
+        [FindPackageShare("robotics_gazebo"), "worlds", "small_city.world"]
     )
 
     return LaunchDescription([
-        set_gazebo_model_path,
-
+        SetEnvironmentVariable(name="GAZEBO_MODEL_PATH", value=gazebo_models_path),
+        SetEnvironmentVariable(name="LIBGL_ALWAYS_SOFTWARE", value="1"),
+        SetEnvironmentVariable(name="QT_X11_NO_MITSHM", value="1"),
+        SetEnvironmentVariable(name="MESA_LOADER_DRIVER_OVERRIDE", value="llvmpipe"),
         DeclareLaunchArgument(
-            'use_sim',
-            default_value='true',
-            description='Start robot in Gazebo simulation'),
-            
+            "use_sim",
+            default_value="true",
+            description="Start robot in Gazebo simulation",
+        ),
         DeclareLaunchArgument(
-            name='use_sim_time',
-            default_value='True',
-            description='Flag to enable use_sim_time'),
-
-        # # gazebo를 실행합니다.
+            "use_gazebo_gui",
+            default_value="true",
+            description="Start Gazebo client GUI when true, otherwise run gzserver only",
+        ),
+        DeclareLaunchArgument(
+            "world",
+            default_value=default_world,
+            description="Absolute path to the Gazebo world file",
+        ),
+        DeclareLaunchArgument(
+            "use_sim_time",
+            default_value="True",
+            description="Flag to enable use_sim_time",
+        ),
         launch.actions.ExecuteProcess(
-            cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', world_dir],
-            output='screen'),
-
+            cmd=[
+                "gazebo",
+                "--verbose",
+                "-s",
+                "libgazebo_ros_init.so",
+                "-s",
+                "libgazebo_ros_factory.so",
+                world,
+            ],
+            output="screen",
+            condition=IfCondition(use_gazebo_gui),
+        ),
+        launch.actions.ExecuteProcess(
+            cmd=[
+                "gzserver",
+                "--verbose",
+                "-s",
+                "libgazebo_ros_init.so",
+                "-s",
+                "libgazebo_ros_factory.so",
+                world,
+            ],
+            output="screen",
+            condition=UnlessCondition(use_gazebo_gui),
+        ),
     ])

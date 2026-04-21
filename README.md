@@ -107,6 +107,100 @@ ros2 launch robotics_nav2 nav2_gazebo.launch.py start_rviz:=false
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
+## Scene Validation
+
+Use `indoor_delivery.launch.py` for the two course scenes. It brings up Gazebo, Nav2, and `robotics_scenario` together.
+
+Headless hotel scene launch:
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/ros2_ws/install/local_setup.bash
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=hotel use_gazebo_gui:=false use_rviz:=false
+```
+
+Headless warehouse scene launch:
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/ros2_ws/install/local_setup.bash
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=warehouse use_gazebo_gui:=false use_rviz:=false
+```
+
+Optional GUI mode in WSL, if you want to try rendering with software OpenGL:
+
+```bash
+env LIBGL_ALWAYS_SOFTWARE=1 QT_X11_NO_MITSHM=1 \
+  ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=hotel use_gazebo_gui:=true use_rviz:=false
+```
+
+Hotel delivery action goal:
+
+```bash
+ros2 action send_goal /hotel_delivery_scenario robotics_interfaces/action/Delivery "{
+  scene_id: hotel,
+  task_type: room_delivery,
+  semantic_goal_id: hotel_room_101_delivery,
+  start_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  end_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 4.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  return_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  behavior_tree: ""
+}"
+```
+
+Warehouse delivery action goal:
+
+```bash
+ros2 action send_goal /warehouse_delivery_scenario robotics_interfaces/action/Delivery "{
+  scene_id: warehouse,
+  task_type: rack_to_dropoff,
+  semantic_goal_id: warehouse_rack_A1_dropoff,
+  start_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  end_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 4.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  return_pose: {
+    header: {frame_id: map},
+    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  },
+  behavior_tree: ""
+}"
+```
+
+Acceptance criteria for both scenes:
+
+- The launch reaches `robotics_scenario` active and the corresponding action server is available.
+- `ros2 action send_goal` is accepted and returns `result: True`, `final_status: SUCCEEDED`, `task_status: COMPLETED`.
+- The robot completes the three pose sequence using the scene-specific semantic goals.
+
+Failure criteria:
+
+- Goal rejected, scene mismatch, or BT file load failure.
+- Nav2 never becomes active.
+- The action returns `FAILED` or `CANCELED`.
+- The robot does not complete the route within the test timeout.
+
+Suggested metrics to record in the report:
+
+- Task completion time.
+- Action success rate across repeated runs.
+- Approximate path length from odometry.
+- Number of recovery behaviors triggered.
+- Whether the task required a retry or manual intervention.
+
 ## Main Packages
 
 - `robotics_description`
