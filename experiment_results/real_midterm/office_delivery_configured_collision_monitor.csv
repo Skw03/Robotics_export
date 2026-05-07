@@ -1,2 +1,0 @@
-trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,route,error,notes
-1,office,delivery,configured,collision_monitor,True,FAILED,FAILED,120.56,charger -> supplies -> pantry -> lounge -> hardware -> coe -> charger,,midterm real WSL run

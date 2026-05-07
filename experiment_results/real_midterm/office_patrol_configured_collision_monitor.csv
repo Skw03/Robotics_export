@@ -1,2 +1,0 @@
-trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,route,error,notes
-1,office,patrol,configured,collision_monitor,True,FAILED,FAILED,589.341,charger -> patrol_a1 -> patrol_a2 -> patrol_d1 -> patrol_c -> patrol_b -> charger,,midterm real WSL run

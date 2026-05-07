@@ -1,2 +1,0 @@
-trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,route,error,notes
-1,warehouse,delivery,configured,collision_monitor,True,FAILED,FAILED,50.887,staging_area -> inbound -> shelf_west -> shelf_center -> shelf_east -> outbound -> charging_dock,,midterm real WSL run
