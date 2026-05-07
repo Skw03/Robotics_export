@@ -1,0 +1,237 @@
+topology_map:
+  vertexs:
+    - id: 0
+      name: charger
+      floor: 1f
+      pose: {x: 55.07, y: -58.48, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 1
+      name: supplies
+      floor: 1f
+      pose: {x: 59.68, y: -31.66, z: 0.0, yaw: 1.57}
+      status: ACTIVE
+    - id: 2
+      name: pantry
+      floor: 1f
+      pose: {x: 69.81, y: -93.92, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 3
+      name: lounge
+      floor: 1f
+      pose: {x: 85.86, y: -112.07, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 4
+      name: hardware
+      floor: 1f
+      pose: {x: 66.93, y: -121.32, z: 0.0, yaw: 3.14}
+      status: ACTIVE
+    - id: 5
+      name: coe
+      floor: 1f
+      pose: {x: 47.49, y: -28.80, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 6
+      name: patrol_a1
+      floor: 1f
+      pose: {x: 46.49, y: -59.56, z: 0.0, yaw: 1.57}
+      status: ACTIVE
+    - id: 7
+      name: patrol_a2
+      floor: 1f
+      pose: {x: 81.95, y: -102.73, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 8
+      name: patrol_d1
+      floor: 1f
+      pose: {x: 61.58, y: -97.15, z: 0.0, yaw: 3.14}
+      status: ACTIVE
+    - id: 9
+      name: patrol_c
+      floor: 1f
+      pose: {x: 42.35, y: -117.10, z: 0.0, yaw: 3.14}
+      status: ACTIVE
+    - id: 10
+      name: patrol_b
+      floor: 1f
+      pose: {x: 20.76, y: -56.02, z: 0.0, yaw: 1.57}
+      status: ACTIVE
+    - id: 11
+      name: patrol_d2
+      floor: 1f
+      pose: {x: 68.54, y: -52.11, z: 0.0, yaw: -1.57}
+      status: ACTIVE
+    - id: 12
+      name: backup_charger
+      floor: 1f
+      pose: {x: 78.01, y: -113.70, z: 0.0, yaw: 3.14}
+      status: ACTIVE
+  edges:
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 1
+    - 0

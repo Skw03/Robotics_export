@@ -1,0 +1,68 @@
+scene_id: office
+task_type: mail_delivery
+semantic_goals:
+  charger:
+    floor: 1f
+    x: 55.07
+    y: -58.48
+    yaw: 0.00
+  supplies:
+    floor: 1f
+    x: 59.68
+    y: -31.66
+    yaw: 1.57
+  pantry:
+    floor: 1f
+    x: 69.81
+    y: -93.92
+    yaw: 0.00
+  lounge:
+    floor: 1f
+    x: 85.86
+    y: -112.07
+    yaw: 0.00
+  hardware:
+    floor: 1f
+    x: 66.93
+    y: -121.32
+    yaw: 3.14
+  coe:
+    floor: 1f
+    x: 47.49
+    y: -28.80
+    yaw: 0.00
+  patrol_a1:
+    floor: 1f
+    x: 46.49
+    y: -59.56
+    yaw: 1.57
+  patrol_a2:
+    floor: 1f
+    x: 81.95
+    y: -102.73
+    yaw: 0.00
+  patrol_d1:
+    floor: 1f
+    x: 61.58
+    y: -97.15
+    yaw: 3.14
+  patrol_c:
+    floor: 1f
+    x: 42.35
+    y: -117.10
+    yaw: 3.14
+  patrol_b:
+    floor: 1f
+    x: 20.76
+    y: -56.02
+    yaw: 1.57
+  patrol_d2:
+    floor: 1f
+    x: 68.54
+    y: -52.11
+    yaw: -1.57
+  backup_charger:
+    floor: 1f
+    x: 78.01
+    y: -113.70
+    yaw: 3.14

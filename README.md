@@ -1,6 +1,9 @@
 # Robotics
 
-Robotics is a ROS 2 Humble delivery robot simulation workspace. This export keeps only the formal runtime chain, launcher scripts, and required external dependencies.
+Robotics is a ROS 2 Humble course workspace that now exposes exactly two runnable scene profiles:
+
+- `warehouse`: the AWS RoboMaker small warehouse adapted as the canonical warehouse scene
+- `office`: an RMF office-inspired scene adapted to the local Gazebo Classic + Nav2 stack
 
 ## Requirements
 
@@ -8,7 +11,7 @@ Robotics is a ROS 2 Humble delivery robot simulation workspace. This export keep
 - ROS 2 Humble
 - Gazebo 11
 
-Install the main runtime dependencies:
+Recommended runtime dependencies:
 
 ```bash
 sudo apt-get update && sudo apt-get install -y \
@@ -34,32 +37,14 @@ sudo apt-get update && sudo apt-get install -y \
   tmuxp
 ```
 
-Set the Gazebo resource path if needed:
+## WSL Quick Start
 
 ```bash
-echo "export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-11:$GAZEBO_RESOURCE_PATH" >> ~/.bashrc
-source ~/.bashrc
-```
-
-## Clone And Submodules
-
-Clone your new repository into `~/ros2_ws/src/Robotics`, then initialize submodules:
-
-```bash
-cd ~/ros2_ws/src
-git clone --recursive <your-repo-url> Robotics
-cd ~/ros2_ws/src/Robotics
-git submodule update --init --recursive
-```
-
-## Build
-
-Install ROS dependencies from the bundled Navigation2 source, then build the main chain:
-
-```bash
+wsl -d Ubuntu-22.04
 cd ~/ros2_ws
 source /opt/ros/humble/setup.bash
-rosdep install --ignore-src --rosdistro humble --from-paths ./src/Robotics/rdsim_submodules/navigation2 -y
+mkdir -p ~/ros2_ws/src
+ln -sfn /mnt/e/Robotic/course_robot_ws/src/Robotics_export ~/ros2_ws/src/Robotics
 colcon build --symlink-install --packages-select \
   robotics_description \
   robotics_gazebo \
@@ -70,149 +55,115 @@ colcon build --symlink-install --packages-select \
 source ~/ros2_ws/install/local_setup.bash
 ```
 
-## WSL Quick Start
+## Launch
 
-If you are using the exported local workspace at `E:\Robotic\course_robot_ws\src\Robotics_export`, link it into WSL as `~/ros2_ws/src/Robotics`:
-
-```bash
-wsl -d Ubuntu-22.04
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-mkdir -p ~/ros2_ws/src
-ln -sfn /mnt/e/Robotic/course_robot_ws/src/Robotics_export ~/ros2_ws/src/Robotics
-source ~/ros2_ws/install/local_setup.bash
-```
-
-You can confirm the packages are visible:
+Headless warehouse:
 
 ```bash
-ros2 pkg list | grep '^robotics_'
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=warehouse use_gazebo_gui:=false use_rviz:=false force_software_rendering:=true
 ```
 
-## Start Commands
-
-Unified launcher:
+Headless office:
 
 ```bash
-bash ~/ros2_ws/src/Robotics/robotics_launcher/start_robotics_wsl.sh
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=office use_gazebo_gui:=false use_rviz:=false force_software_rendering:=true
 ```
 
-Recommended manual startup order:
+RViz navigation view only, recommended for WSL graphics:
 
 ```bash
-ros2 launch robotics_gazebo robotics_gazebo_world.launch.py
-ros2 launch robotics_description robotics_gazebo.launch.py
-ros2 launch robotics_localization hdl_localization.launch.py
-ros2 launch robotics_nav2 nav2_gazebo.launch.py start_rviz:=false
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=office use_gazebo_gui:=false use_rviz:=true force_software_rendering:=true
 ```
 
-## Scene Validation
-
-Use `indoor_delivery.launch.py` for the two course scenes. It brings up Gazebo, Nav2, and `robotics_scenario` together.
-
-Headless hotel scene launch:
+Gazebo 3D view only:
 
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/ros2_ws/install/local_setup.bash
-ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=hotel use_gazebo_gui:=false use_rviz:=false
+ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=office use_gazebo_gui:=true use_rviz:=false force_software_rendering:=true
 ```
 
-Headless warehouse scene launch:
+For the warehouse scene, the Gazebo world hides the roof by default so the 3D GUI can see the interior shelves, robot, and floor from the overview camera.
+
+WSL launcher with RViz only:
 
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/ros2_ws/install/local_setup.bash
-ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=warehouse use_gazebo_gui:=false use_rviz:=false
+ROBOTICS_SCENE=office ROBOTICS_RVIZ=true ROBOTICS_GAZEBO_GUI=false /mnt/e/Robotic/course_robot_ws/src/Robotics_export/robotics_launcher/start_robotics_wsl.sh
 ```
 
-Optional GUI mode in WSL, if you want to try rendering with software OpenGL:
+WSL launcher with Gazebo GUI only:
 
 ```bash
-env LIBGL_ALWAYS_SOFTWARE=1 QT_X11_NO_MITSHM=1 \
-  ros2 launch robotics_nav2 indoor_delivery.launch.py scene:=hotel use_gazebo_gui:=true use_rviz:=false
+ROBOTICS_SCENE=office ROBOTICS_RVIZ=false ROBOTICS_GAZEBO_GUI=true /mnt/e/Robotic/course_robot_ws/src/Robotics_export/robotics_launcher/start_robotics_wsl.sh
 ```
 
-Hotel delivery action goal:
+## Task Dispatch
+
+Warehouse delivery:
 
 ```bash
-ros2 action send_goal /hotel_delivery_scenario robotics_interfaces/action/Delivery "{
-  scene_id: hotel,
-  task_type: room_delivery,
-  semantic_goal_id: hotel_room_101_delivery,
-  start_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  end_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 4.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  return_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  behavior_tree: ""
-}"
+ros2 run robotics_scenario course_task_dispatcher.py --scene warehouse --task delivery
 ```
 
-Warehouse delivery action goal:
+Warehouse patrol:
 
 ```bash
-ros2 action send_goal /warehouse_delivery_scenario robotics_interfaces/action/Delivery "{
-  scene_id: warehouse,
-  task_type: rack_to_dropoff,
-  semantic_goal_id: warehouse_rack_A1_dropoff,
-  start_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  end_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 4.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  return_pose: {
-    header: {frame_id: map},
-    pose: {position: {x: 3.5, y: 2.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
-  },
-  behavior_tree: ""
-}"
+ros2 run robotics_scenario course_task_dispatcher.py --scene warehouse --task patrol
 ```
 
-Acceptance criteria for both scenes:
+Office delivery:
 
-- The launch reaches `robotics_scenario` active and the corresponding action server is available.
-- `ros2 action send_goal` is accepted and returns `result: True`, `final_status: SUCCEEDED`, `task_status: COMPLETED`.
-- The robot completes the three pose sequence using the scene-specific semantic goals.
+```bash
+ros2 run robotics_scenario course_task_dispatcher.py --scene office --task delivery
+```
 
-Failure criteria:
+Office patrol:
 
-- Goal rejected, scene mismatch, or BT file load failure.
-- Nav2 never becomes active.
-- The action returns `FAILED` or `CANCELED`.
-- The robot does not complete the route within the test timeout.
+```bash
+ros2 run robotics_scenario course_task_dispatcher.py --scene office --task patrol
+```
 
-Suggested metrics to record in the report:
+Natural-language dispatch:
 
-- Task completion time.
-- Action success rate across repeated runs.
-- Approximate path length from odometry.
-- Number of recovery behaviors triggered.
-- Whether the task required a retry or manual intervention.
+```bash
+ros2 run robotics_scenario course_nl_command.py "send the warehouse robot to complete a delivery loop"
+ros2 run robotics_scenario course_nl_command.py "dispatch an office patrol route through the checkpoints"
+```
 
-## Main Packages
+LLM-backed semantic dispatch, with local keyword fallback when no API key is
+available:
 
-- `robotics_description`
-- `robotics_gazebo`
-- `robotics_interfaces`
-- `robotics_localization`
-- `robotics_nav2`
-- `robotics_scenario`
-- `robotics_launcher`
-- `rdsim_submodules`
+```bash
+export OPENAI_API_KEY=<key>
+ros2 run robotics_scenario course_llm_command.py "send the office robot to patrol all checkpoints"
+ros2 run robotics_scenario course_llm_command.py --force-fallback --dry-run "办公室巡检一圈"
+```
 
-## Known Limits
+Generate planner/avoidance comparison params and record trials:
 
-- Gazebo may still fail to create a rendering window under some WSL graphics configurations.
-- RViz may still crash under some WSLg / GPU OpenGL combinations.
+```bash
+ros2 run robotics_nav2 generate_nav2_profile.py \
+  --base $(ros2 pkg prefix robotics_nav2)/share/robotics_nav2/param/warehouse_nav2.yaml \
+  --planner-profile navfn_astar \
+  --avoidance-profile collision_monitor \
+  --output /tmp/warehouse_navfn_collision.yaml
+
+ros2 launch robotics_nav2 indoor_delivery.launch.py \
+  scene:=warehouse \
+  nav2_params_file:=/tmp/warehouse_navfn_collision.yaml \
+  use_gazebo_gui:=false \
+  use_rviz:=true \
+  force_software_rendering:=true
+
+ros2 run robotics_scenario course_experiment_runner.py \
+  --scene warehouse \
+  --task delivery \
+  --trials 3 \
+  --planner-profile navfn_astar \
+  --avoidance-profile collision_monitor
+```
+
+## Notes
+
+- AWS assets are reused for the final `warehouse` world, map, and semantic route layout.
+- RMF office data is reused for the final `office` map, semantic waypoints, and patrol/delivery flow.
+- The runtime stack remains local ROS 2 Humble + Gazebo Classic + Nav2.
+- Course planning, evaluation, AI usage, and sim-to-real notes are in `docs/`.

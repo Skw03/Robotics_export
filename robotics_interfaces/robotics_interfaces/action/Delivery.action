@@ -1,6 +1,10 @@
 string scene_id
 string task_type
 string semantic_goal_id
+string start_floor
+string target_floor
+string return_floor
+string[] semantic_route
 geometry_msgs/PoseStamped start_pose
 geometry_msgs/PoseStamped end_pose
 geometry_msgs/PoseStamped return_pose

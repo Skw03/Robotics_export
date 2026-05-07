@@ -28,5 +28,10 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/generate_nav2_profile.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ament_package()

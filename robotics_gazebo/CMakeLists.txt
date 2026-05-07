@@ -25,7 +25,7 @@ find_package(xacro REQUIRED)
 
 # 설치 구성: 'launch', 'rviz', 'world', 및 'urdf' 디렉토리를 설치 경로로 복사합니다.
 install(
-  DIRECTORY launch worlds models
+  DIRECTORY launch worlds models scripts
   DESTINATION share/${PROJECT_NAME}
 )
 

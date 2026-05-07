@@ -47,8 +47,8 @@ protected:
 
 private:
   BT::Blackboard::Ptr m_blackboard;
-  std::unique_ptr<robotics_scenario::DeliveryScenario> m_hotel_delivery_scenario;
   std::unique_ptr<robotics_scenario::DeliveryScenario> m_warehouse_delivery_scenario;
+  std::unique_ptr<robotics_scenario::DeliveryScenario> m_office_delivery_scenario;
   ScenarioMuxer m_muxer;
 };
 

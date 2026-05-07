@@ -61,10 +61,19 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': use_sim_time},
-            {'default_hotel_delivery_bt_xml': os.path.join(get_package_share_directory('robotics_scenario'),
-                                                           'behavior_trees', 'hotel_delivery.xml')},
+            {'wait_for_service_timeout': 10000},
             {'default_warehouse_delivery_bt_xml': os.path.join(get_package_share_directory('robotics_scenario'),
-                                                               'behavior_trees', 'warehouse_delivery.xml')}
+                                                               'behavior_trees', 'warehouse_delivery.xml')},
+            {'default_warehouse_patrol_bt_xml': os.path.join(get_package_share_directory('robotics_scenario'),
+                                                             'behavior_trees', 'warehouse_patrol.xml')},
+            {'default_office_delivery_bt_xml': os.path.join(
+                get_package_share_directory('robotics_scenario'),
+                'behavior_trees',
+                'office_delivery.xml')},
+            {'default_office_patrol_bt_xml': os.path.join(
+                get_package_share_directory('robotics_scenario'),
+                'behavior_trees',
+                'office_patrol.xml')}
         ]
     )
 

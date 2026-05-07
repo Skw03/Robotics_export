@@ -2,10 +2,10 @@
 
 namespace robotics_scenario {
 ScenarioManager::ScenarioManager() : nav2_util::LifecycleNode("robotics_scenario", "") {
-  m_hotel_delivery_scenario =
-      std::make_unique<DeliveryScenario>("hotel_delivery_scenario", "hotel", "default_hotel_delivery_bt_xml");
   m_warehouse_delivery_scenario = std::make_unique<DeliveryScenario>("warehouse_delivery_scenario", "warehouse",
                                                                      "default_warehouse_delivery_bt_xml");
+  m_office_delivery_scenario =
+      std::make_unique<DeliveryScenario>("office_delivery_scenario", "office", "default_office_delivery_bt_xml");
 }
 
 nav2_util::CallbackReturn ScenarioManager::on_configure(const rclcpp_lifecycle::State & /*state*/) {
@@ -14,11 +14,11 @@ nav2_util::CallbackReturn ScenarioManager::on_configure(const rclcpp_lifecycle::
       "nav2_round_robin_node_bt_node",        "nav2_navigate_through_poses_action_bt_node",
       "nav2_navigate_to_pose_action_bt_node", "nav2_is_battery_charging_condition_bt_node",
       "nav2_wait_action_bt_node"};
-  if (!m_hotel_delivery_scenario->on_configure(shared_from_this(), plugin_lib_names, &m_muxer)) {
+  if (!m_warehouse_delivery_scenario->on_configure(shared_from_this(), plugin_lib_names, &m_muxer)) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
-  if (!m_warehouse_delivery_scenario->on_configure(shared_from_this(), plugin_lib_names, &m_muxer)) {
+  if (!m_office_delivery_scenario->on_configure(shared_from_this(), plugin_lib_names, &m_muxer)) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
@@ -28,11 +28,11 @@ nav2_util::CallbackReturn ScenarioManager::on_configure(const rclcpp_lifecycle::
 nav2_util::CallbackReturn ScenarioManager::on_activate(const rclcpp_lifecycle::State & /*state*/) {
   RCLCPP_INFO(get_logger(), "Activating");
 
-  if (!m_hotel_delivery_scenario->on_activate()) {
+  if (!m_warehouse_delivery_scenario->on_activate()) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
-  if (!m_warehouse_delivery_scenario->on_activate()) {
+  if (!m_office_delivery_scenario->on_activate()) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
@@ -45,11 +45,11 @@ nav2_util::CallbackReturn ScenarioManager::on_activate(const rclcpp_lifecycle::S
 nav2_util::CallbackReturn ScenarioManager::on_deactivate(const rclcpp_lifecycle::State & /*state*/) {
   RCLCPP_INFO(get_logger(), "Deactivating");
 
-  if (!m_hotel_delivery_scenario->on_deactivate()) {
+  if (!m_warehouse_delivery_scenario->on_deactivate()) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
-  if (!m_warehouse_delivery_scenario->on_deactivate()) {
+  if (!m_office_delivery_scenario->on_deactivate()) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
@@ -62,16 +62,16 @@ nav2_util::CallbackReturn ScenarioManager::on_deactivate(const rclcpp_lifecycle:
 nav2_util::CallbackReturn ScenarioManager::on_cleanup(const rclcpp_lifecycle::State & /*state*/) {
   RCLCPP_INFO(get_logger(), "Cleaning up");
 
-  if (!m_hotel_delivery_scenario->on_cleanup()) {
-    return nav2_util::CallbackReturn::FAILURE;
-  }
-
   if (!m_warehouse_delivery_scenario->on_cleanup()) {
     return nav2_util::CallbackReturn::FAILURE;
   }
 
-  m_hotel_delivery_scenario.reset();
+  if (!m_office_delivery_scenario->on_cleanup()) {
+    return nav2_util::CallbackReturn::FAILURE;
+  }
+
   m_warehouse_delivery_scenario.reset();
+  m_office_delivery_scenario.reset();
 
   RCLCPP_INFO(get_logger(), "Completed Cleaning up");
   return nav2_util::CallbackReturn::SUCCESS;

@@ -81,14 +81,21 @@ def generate_launch_description():
     set_gazebo_resource_path = SetEnvironmentVariable(
         name="GAZEBO_RESOURCE_PATH", value=combined_gazebo_resource_path
     )
-    set_software_rendering = SetEnvironmentVariable(
-        name="LIBGL_ALWAYS_SOFTWARE", value="1"
-    )
     set_qt_no_mitshm = SetEnvironmentVariable(
         name="QT_X11_NO_MITSHM", value="1"
     )
+    force_software_rendering = LaunchConfiguration(
+        "force_software_rendering", default="false"
+    )
+    set_software_rendering = SetEnvironmentVariable(
+        name="LIBGL_ALWAYS_SOFTWARE",
+        value="1",
+        condition=IfCondition(force_software_rendering),
+    )
     set_mesa_driver = SetEnvironmentVariable(
-        name="MESA_LOADER_DRIVER_OVERRIDE", value="llvmpipe"
+        name="MESA_LOADER_DRIVER_OVERRIDE",
+        value="llvmpipe",
+        condition=IfCondition(force_software_rendering),
     )
 
     start_rviz = LaunchConfiguration("start_rviz")
@@ -207,6 +214,11 @@ def generate_launch_description():
                 name="use_sim_time",
                 default_value="True",
                 description="Flag to enable use_sim_time",
+            ),
+            DeclareLaunchArgument(
+                name="force_software_rendering",
+                default_value="false",
+                description="Use CPU software rendering for Gazebo when GPU rendering is unstable",
             ),
             DeclareLaunchArgument(
                 name="world",

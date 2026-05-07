@@ -9,6 +9,7 @@
 #include "robotics_scenario/scenario/scenario.hpp"
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace robotics_scenario {
@@ -89,6 +90,11 @@ protected:
    * @param goal Action template's goal message to process
    */
   void initializeGoalPose(ActionT::Goal::ConstSharedPtr goal);
+  geometry_msgs::msg::PoseStamped makePose(double x, double y, double yaw, const std::string &floor) const;
+  void loadSemanticGoals();
+  bool lookupSemanticGoal(const std::string &goal_id, geometry_msgs::msg::PoseStamped &pose) const;
+  void loadTaskBehaviorTrees(rclcpp_lifecycle::LifecycleNode::WeakPtr node);
+  std::string getDefaultBTForTask(const std::string &task_type) const;
 
   rclcpp::Time start_time_;
 
@@ -102,6 +108,8 @@ protected:
   std::string action_name_;
   std::string scene_id_;
   std::string default_bt_parameter_name_;
+  std::unordered_map<std::string, geometry_msgs::msg::PoseStamped> semantic_goals_;
+  std::unordered_map<std::string, std::string> task_behavior_trees_;
 };
 
 } // namespace robotics_scenario

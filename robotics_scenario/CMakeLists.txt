@@ -12,6 +12,7 @@ set(BT_TREE_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../install/nav2_behavior_tree")
 find_package(ament_cmake REQUIRED)
 find_package(nav2_common REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(nav2_util REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -76,6 +77,19 @@ target_link_libraries(${library_name}_node
 )
 
 install(TARGETS ${library_name}_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/course_task_dispatcher.py
+  scripts/course_nl_command.py
+  scripts/course_llm_command.py
+  scripts/course_experiment_runner.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(FILES
+  scripts/_course_task_utils.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

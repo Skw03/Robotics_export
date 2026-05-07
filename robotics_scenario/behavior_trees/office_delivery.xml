@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <NavigateToPose goal="{route_goal_0}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_1}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_2}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_3}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_4}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_5}" behavior_tree=""/>
+      <Wait wait_duration="1"/>
+      <NavigateToPose goal="{route_goal_6}" behavior_tree=""/>
+    </Sequence>
+  </BehaviorTree>
+  <TreeNodesModel>
+    <Action ID="NavigateToPose">
+      <input_port name="goal">Goal</input_port>
+      <input_port name="behavior_tree">Behavior tree to run</input_port>
+    </Action>
+    <Action ID="Wait">
+      <input_port name="wait_duration">Seconds to wait at office delivery stops</input_port>
+    </Action>
+  </TreeNodesModel>
+</root>

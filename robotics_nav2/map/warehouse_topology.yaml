@@ -1,28 +1,54 @@
 topology_map:
   vertexs:
     - id: 0
-      pose: {x: 2.0, y: 2.0, z: 0.0, yaw: 0.0}
+      name: staging_area
+      floor: 1f
+      pose: {x: -3.07, y: 3.58, z: 0.0, yaw: 0.00}
       status: ACTIVE
     - id: 1
-      pose: {x: 6.0, y: 9.0, z: 0.0, yaw: 1.57}
+      name: inbound
+      floor: 1f
+      pose: {x: 0.43, y: 8.59, z: 0.0, yaw: -1.57}
       status: ACTIVE
     - id: 2
-      pose: {x: 10.0, y: 9.0, z: 0.0, yaw: 1.57}
+      name: shelf_west
+      floor: 1f
+      pose: {x: 3.32, y: 6.14, z: 0.0, yaw: 3.14}
       status: ACTIVE
     - id: 3
-      pose: {x: 14.0, y: 9.0, z: 0.0, yaw: 1.57}
+      name: shelf_center
+      floor: 1f
+      pose: {x: 3.32, y: 3.82, z: 0.0, yaw: 1.57}
       status: ACTIVE
     - id: 4
-      pose: {x: 17.5, y: 2.0, z: 0.0, yaw: 3.14}
+      name: shelf_east
+      floor: 1f
+      pose: {x: 4.73, y: -1.24, z: 0.0, yaw: 0.00}
       status: ACTIVE
     - id: 5
-      pose: {x: 18.0, y: 10.0, z: 0.0, yaw: 3.14}
+      name: outbound
+      floor: 1f
+      pose: {x: -0.28, y: -9.48, z: 0.0, yaw: 0.00}
+      status: ACTIVE
+    - id: 6
+      name: charging_dock
+      floor: 1f
+      pose: {x: -1.59, y: 7.72, z: 0.0, yaw: 0.00}
       status: ACTIVE
   edges:
     - 0
     - 1
     - 0
     - 0
+    - 0
+    - 0
+    - 1
+    - 1
+    - 0
+    - 1
+    - 0
+    - 0
+    - 0
     - 1
     - 0
     - 1
@@ -32,26 +58,30 @@ topology_map:
     - 0
     - 0
     - 0
-    - 1
     - 0
     - 1
-    - 1
-    - 0
-    - 0
     - 0
     - 1
     - 0
     - 1
     - 0
     - 0
+    - 0
+    - 0
+    - 0
     - 1
     - 0
     - 1
+    - 0
     - 1
+    - 0
+    - 0
+    - 0
+    - 0
     - 0
     - 1
     - 0
     - 1
-    - 1
     - 0
+    - 1
     - 1

@@ -4,6 +4,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
 # User-specific files
 *.rsuser
 *.suo
@@ -405,3 +410,7 @@ FodyWeavers.xsd
 docs/html/*
 site/*
 imgui.ini
+
+# Gazebo model/world resources are source assets, not Visual Studio cache files.
+!robotics_gazebo/models/**/*.sdf
+!robotics_gazebo/worlds/**/*.sdf

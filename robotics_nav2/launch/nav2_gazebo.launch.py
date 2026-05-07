@@ -34,6 +34,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     scene = LaunchConfiguration('scene')
+    floor = LaunchConfiguration('floor')
     start_rviz = LaunchConfiguration('start_rviz')
     use_sim = LaunchConfiguration('use_sim')
     map_yaml_file = LaunchConfiguration('map_yaml_file')
@@ -45,12 +46,14 @@ def generate_launch_description():
     use_respawn = LaunchConfiguration('use_respawn')
 
     nav2_share = get_package_share_directory('robotics_nav2')
-    hotel_map_yaml_file = os.path.join(nav2_share, 'map', 'hotel_map.yaml')
     warehouse_map_yaml_file = os.path.join(nav2_share, 'map', 'warehouse_map.yaml')
-    hotel_topology_map_yaml_file = os.path.join(nav2_share, 'map', 'hotel_topology.yaml')
+    office_map_yaml_file = os.path.join(nav2_share, 'map', 'office_map.yaml')
     warehouse_topology_map_yaml_file = os.path.join(nav2_share, 'map', 'warehouse_topology.yaml')
-    hotel_params_file = os.path.join(nav2_share, 'param', 'hotel_nav2.yaml')
+    office_topology_map_yaml_file = os.path.join(nav2_share, 'map', 'office_topology.yaml')
     warehouse_params_file = os.path.join(nav2_share, 'param', 'warehouse_nav2.yaml')
+    office_params_file = os.path.join(nav2_share, 'param', 'office_nav2.yaml')
+    warehouse_rviz_config_file = os.path.join(nav2_share, 'rviz', 'warehouse_nav2_lite.rviz')
+    office_rviz_config_file = os.path.join(nav2_share, 'rviz', 'office_nav2_lite.rviz')
 
     nav2_launch_file_dir = PathJoinSubstitution(
         [
@@ -59,16 +62,7 @@ def generate_launch_description():
         ]
     )
 
-    rviz_config_file = LaunchConfiguration(
-        'rviz_config_file',
-        default=PathJoinSubstitution(
-            [
-                FindPackageShare('robotics_nav2'),
-                'rviz',
-                'nav2.rviz'
-            ]
-        )
-    )
+    rviz_config_file = LaunchConfiguration('rviz_config_file')
 
     default_bt_xml_filename = PathJoinSubstitution(
         [
@@ -81,8 +75,13 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'scene',
-            default_value='hotel',
-            description='Indoor delivery scene profile: hotel or warehouse'),
+            default_value='warehouse',
+            description='Indoor delivery scene profile: warehouse or office'),
+
+        DeclareLaunchArgument(
+            'floor',
+            default_value='1f',
+            description='Initial logical floor for single-floor delivery scenes'),
 
         DeclareLaunchArgument(
             'start_rviz',
@@ -96,16 +95,33 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'map_yaml_file',
-            default_value=PythonExpression(["'", hotel_map_yaml_file, "' if '", scene, "' == 'hotel' else '", warehouse_map_yaml_file, "'"]),
+            default_value=PythonExpression([
+                "'", office_map_yaml_file, "' if '", scene, "' == 'office' else '",
+                warehouse_map_yaml_file, "'"
+            ]),
             description='Full path to map file to load'),
         DeclareLaunchArgument(
             'topology_map_yaml_file',
-            default_value=PythonExpression(["'", hotel_topology_map_yaml_file, "' if '", scene, "' == 'hotel' else '", warehouse_topology_map_yaml_file, "'"]),
+            default_value=PythonExpression([
+                "'", office_topology_map_yaml_file, "' if '", scene, "' == 'office' else '",
+                warehouse_topology_map_yaml_file, "'"
+            ]),
             description='Full path to topology map file to load'),
         DeclareLaunchArgument(
             'params_file',
-            default_value=PythonExpression(["'", hotel_params_file, "' if '", scene, "' == 'hotel' else '", warehouse_params_file, "'"]),
+            default_value=PythonExpression([
+                "'", office_params_file, "' if '", scene, "' == 'office' else '",
+                warehouse_params_file, "'"
+            ]),
             description='Full path to the ROS2 parameters file to use for all launched nodes'),
+
+        DeclareLaunchArgument(
+            'rviz_config_file',
+            default_value=PythonExpression([
+                "'", office_rviz_config_file, "' if '", scene, "' == 'office' else '",
+                warehouse_rviz_config_file, "'"
+            ]),
+            description='Full path to the RViz config file to use'),
 
         DeclareLaunchArgument(
             'default_bt_xml_filename',

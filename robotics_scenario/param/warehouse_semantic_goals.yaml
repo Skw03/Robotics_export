@@ -1,27 +1,38 @@
 scene_id: warehouse
 task_type: rack_to_dropoff
 semantic_goals:
-  rack_A1:
-    x: 3.5
-    y: 2.0
-    yaw: 0.0
-  rack_A2:
-    x: 10.0
-    y: 9.0
-    yaw: 1.57
-  rack_B1:
-    x: 14.0
-    y: 9.0
-    yaw: 1.57
-  dropoff_station:
-    x: 4.5
-    y: 2.0
-    yaw: 0.0
   staging_area:
-    x: 3.5
-    y: 2.0
-    yaw: 0.0
-  charging_dock:
-    x: 18.0
-    y: 10.0
+    floor: 1f
+    x: -3.07
+    y: 3.58
+    yaw: 0.00
+  inbound:
+    floor: 1f
+    x: 0.43
+    y: 8.59
+    yaw: -1.57
+  shelf_west:
+    floor: 1f
+    x: 3.32
+    y: 6.14
     yaw: 3.14
+  shelf_center:
+    floor: 1f
+    x: 3.32
+    y: 3.82
+    yaw: 1.57
+  shelf_east:
+    floor: 1f
+    x: 4.73
+    y: -1.24
+    yaw: 0.00
+  outbound:
+    floor: 1f
+    x: -0.28
+    y: -9.48
+    yaw: 0.00
+  charging_dock:
+    floor: 1f
+    x: -1.59
+    y: 7.72
+    yaw: 0.00
