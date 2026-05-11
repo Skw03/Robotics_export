@@ -12,6 +12,9 @@ def infer_scene(text: str) -> str:
 
 def infer_task(text: str) -> str:
     lowered = text.lower()
+    demo_keywords = ["demo", "stage 2", "stage2", "midterm", "演示", "中期", "阶段二", "阶段2"]
+    if any(keyword in lowered or keyword in text for keyword in demo_keywords):
+        return "demo"
     patrol_keywords = ["patrol", "loop", "巡检", "巡航", "巡视", "巡逻", "检查"]
     if any(keyword in lowered or keyword in text for keyword in patrol_keywords):
         return "patrol"

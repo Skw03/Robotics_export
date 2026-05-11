@@ -11,15 +11,16 @@ from course_nl_command import infer_scene, infer_task
 
 
 VALID_TASKS = {
-    "warehouse": {"delivery", "patrol"},
-    "office": {"delivery", "patrol"},
+    "warehouse": {"delivery", "patrol", "demo"},
+    "office": {"delivery", "patrol", "demo"},
 }
 
 
 SYSTEM_PROMPT = """You are the semantic planning layer for a ROS 2 indoor mobile robot.
 Map the user's command to exactly one executable preset task.
 Valid scenes: warehouse, office.
-Valid tasks: delivery, patrol.
+Valid tasks: delivery, patrol, demo.
+Use demo for short midterm/stage-2 demonstration commands.
 Return JSON only. Do not invent scenes, tasks, or route names."""
 
 
@@ -28,7 +29,7 @@ TASK_SCHEMA: Dict[str, Any] = {
     "additionalProperties": False,
     "properties": {
         "scene": {"type": "string", "enum": ["warehouse", "office"]},
-        "task": {"type": "string", "enum": ["delivery", "patrol"]},
+        "task": {"type": "string", "enum": ["delivery", "patrol", "demo"]},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "rationale": {"type": "string"},
     },

@@ -109,6 +109,12 @@ Warehouse patrol:
 ros2 run robotics_scenario course_task_dispatcher.py --scene warehouse --task patrol
 ```
 
+Warehouse stage-2 demo loop:
+
+```bash
+ros2 run robotics_scenario course_task_dispatcher.py --scene warehouse --task demo
+```
+
 Office delivery:
 
 ```bash
@@ -136,6 +142,37 @@ export OPENAI_API_KEY=<key>
 ros2 run robotics_scenario course_llm_command.py "send the office robot to patrol all checkpoints"
 ros2 run robotics_scenario course_llm_command.py --force-fallback --dry-run "办公室巡检一圈"
 ```
+
+Stage-2 warehouse demo profile:
+
+```bash
+ros2 launch robotics_nav2 indoor_delivery.launch.py \
+  scene:=warehouse \
+  nav2_params_file:=$(ros2 pkg prefix robotics_nav2)/share/robotics_nav2/param/warehouse_stage2_demo.yaml \
+  use_gazebo_gui:=false \
+  use_rviz:=true \
+  force_software_rendering:=true
+```
+
+Stage-2 office demo profile:
+
+```bash
+ros2 launch robotics_nav2 indoor_delivery.launch.py \
+  scene:=office \
+  nav2_params_file:=$(ros2 pkg prefix robotics_nav2)/share/robotics_nav2/param/office_stage2_demo.yaml \
+  use_gazebo_gui:=false \
+  use_rviz:=true \
+  force_software_rendering:=true
+```
+
+Run the headless stage-2 demo script from WSL:
+
+```bash
+/mnt/e/Robotic/course_robot_ws/src/Robotics_export/tools/run_stage2_demo_wsl.sh
+SCENE=office /mnt/e/Robotic/course_robot_ws/src/Robotics_export/tools/run_stage2_demo_wsl.sh
+```
+
+The `/mnt/e/...` path is only the default checkout location for this WSL setup. On another machine, set `PROJECT_ROOT=/path/to/Robotics_export` before running the helper script.
 
 Generate planner/avoidance comparison params and record trials:
 
@@ -166,4 +203,6 @@ ros2 run robotics_scenario course_experiment_runner.py \
 - AWS assets are reused for the final `warehouse` world, map, and semantic route layout.
 - RMF office data is reused for the final `office` map, semantic waypoints, and patrol/delivery flow.
 - The runtime stack remains local ROS 2 Humble + Gazebo Classic + Nav2.
+- This export is self-contained for the course workflow and no longer depends on the old `rdsim_submodules` Git submodules.
+- CMake package discovery is handled by sourcing `/opt/ros/humble/setup.bash` and the workspace `install/local_setup.bash`; package files should not hard-code a local `install/` path.
 - Course planning, evaluation, AI usage, and sim-to-real notes are in `docs/`.

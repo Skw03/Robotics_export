@@ -7,13 +7,13 @@
   <version>0.0.0</version>
   
   <!-- 패키지에 대한 간단한 설명을 제공합니다. -->
-  <description>TODO: Package mobile robot description</description>
+  <description>Mobile robot description, sensors, and Gazebo launch assets for the course simulation.</description>
   
   <!-- 패키지를 유지 보수하는 사람의 이메일을 제공합니다. -->
   <maintainer email="0380089@gmail.com">ggh-png</maintainer>
   
   <!-- 패키지의 라이선스 정보를 제공합니다. -->
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
   <!-- 빌드 도구로서 ament_cmake를 사용함을 선언합니다. -->
   <buildtool_depend>ament_cmake</buildtool_depend>

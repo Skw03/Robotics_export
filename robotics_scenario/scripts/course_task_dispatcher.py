@@ -11,7 +11,7 @@ from _course_task_utils import TaskDispatchNode, dump_result
 def parse_args():
     parser = argparse.ArgumentParser(description="Dispatch a preset course task to the active scenario action server.")
     parser.add_argument("--scene", choices=["warehouse", "office"], default="warehouse")
-    parser.add_argument("--task", choices=["delivery", "patrol"], default="delivery")
+    parser.add_argument("--task", choices=["delivery", "patrol", "demo"], default="delivery")
     parser.add_argument("--save-json", help="Optional path to save the dispatch result as JSON")
     return parser.parse_args()
 

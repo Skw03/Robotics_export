@@ -3,7 +3,7 @@
 <package format="3">
   <name>robotics_scenario</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Behavior-tree task scenarios and CLI dispatch tools for the course robot.</description>
   <maintainer email="msd030428@gmail.com">kdw</maintainer>
   <license>Apache-2.0</license> 
 

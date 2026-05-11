@@ -17,12 +17,17 @@ def parse_args():
         description="Run repeated preset course tasks and record metrics for planner and avoidance comparisons."
     )
     parser.add_argument("--scene", choices=["warehouse", "office"], required=True)
-    parser.add_argument("--task", choices=["delivery", "patrol"], required=True)
+    parser.add_argument("--task", choices=["delivery", "patrol", "demo"], required=True)
     parser.add_argument("--trials", type=int, default=3)
     parser.add_argument("--planner-profile", choices=["configured", "navfn_astar", "smac_2d"], default="configured")
-    parser.add_argument("--avoidance-profile", choices=["baseline_costmap", "collision_monitor"], default="collision_monitor")
+    parser.add_argument(
+        "--avoidance-profile",
+        choices=["baseline_costmap", "collision_monitor", "stage2_demo"],
+        default="collision_monitor",
+    )
     parser.add_argument("--output-dir", default="experiment_results")
     parser.add_argument("--notes", default="")
+    parser.add_argument("--result-timeout", type=float, default=180.0)
     return parser.parse_args()
 
 
@@ -67,7 +72,7 @@ def main():
         for trial in range(1, args.trials + 1):
             started_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
             try:
-                result = node.dispatch(args.scene, args.task)
+                result = node.dispatch(args.scene, args.task, result_timeout_sec=args.result_timeout)
                 payload = json.loads(dump_result(result))
                 task_spec = payload.get("task_spec", {})
                 record: Dict[str, object] = {

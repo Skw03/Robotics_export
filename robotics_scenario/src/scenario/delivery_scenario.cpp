@@ -326,9 +326,13 @@ void DeliveryScenario::loadTaskBehaviorTrees(rclcpp_lifecycle::LifecycleNode::We
   if (scene_id_ == "warehouse") {
     task_behavior_trees_["patrol_loop"] = ensure_parameter(
         "default_warehouse_patrol_bt_xml", pkg_share_dir + "/behavior_trees/warehouse_patrol.xml");
+    task_behavior_trees_["stage2_demo"] = ensure_parameter(
+        "default_warehouse_stage2_demo_bt_xml", pkg_share_dir + "/behavior_trees/warehouse_demo.xml");
   } else if (scene_id_ == "office") {
     task_behavior_trees_["patrol_loop"] = ensure_parameter(
         "default_office_patrol_bt_xml", pkg_share_dir + "/behavior_trees/office_patrol.xml");
+    task_behavior_trees_["stage2_demo"] = ensure_parameter(
+        "default_office_stage2_demo_bt_xml", pkg_share_dir + "/behavior_trees/office_demo.xml");
   }
 }
 

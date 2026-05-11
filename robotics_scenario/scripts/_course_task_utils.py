@@ -16,12 +16,13 @@ from robotics_interfaces.action import Delivery
 SEMANTIC_POSES: Dict[str, Dict[str, Dict[str, float]]] = {
     "warehouse": {
         "staging_area": {"x": -3.07, "y": 3.58, "yaw": 0.0},
-        "inbound": {"x": 0.43, "y": 8.59, "yaw": -1.57},
-        "shelf_west": {"x": 3.32, "y": 6.14, "yaw": 3.14},
-        "shelf_center": {"x": 3.32, "y": 3.82, "yaw": 1.57},
+        "demo_checkpoint": {"x": -3.40, "y": 2.95, "yaw": 0.0},
+        "inbound": {"x": 0.45, "y": 3.00, "yaw": -1.57},
+        "shelf_west": {"x": 3.30, "y": 2.10, "yaw": 3.14},
+        "shelf_center": {"x": 3.30, "y": 1.00, "yaw": 1.57},
         "shelf_east": {"x": 4.73, "y": -1.24, "yaw": 0.0},
         "outbound": {"x": -0.28, "y": -9.48, "yaw": 0.0},
-        "charging_dock": {"x": -1.59, "y": 7.72, "yaw": 0.0},
+        "charging_dock": {"x": -1.40, "y": 2.85, "yaw": 0.0},
     },
     "office": {
         "charger": {"x": 55.07, "y": -58.48, "yaw": 0.0},
@@ -68,6 +69,15 @@ TASK_PRESETS = {
                 "charging_dock",
             ],
         },
+        "demo": {
+            "task_type": "stage2_demo",
+            "semantic_goal_id": "warehouse_stage2_demo_loop",
+            "route": [
+                "staging_area",
+                "demo_checkpoint",
+                "staging_area",
+            ],
+        },
     },
     "office": {
         "delivery": {
@@ -95,7 +105,15 @@ TASK_PRESETS = {
                 "patrol_b",
                 "charger",
             ],
-        }
+        },
+        "demo": {
+            "task_type": "stage2_demo",
+            "semantic_goal_id": "office_stage2_demo_loop",
+            "route": [
+                "charger",
+                "patrol_a1",
+            ],
+        },
     },
 }
 
@@ -158,7 +176,13 @@ class TaskDispatchNode(Node):
     def __init__(self):
         super().__init__("course_task_dispatcher")
 
-    def dispatch(self, scene: str, task_name: str, timeout_sec: float = 20.0) -> DispatchResult:
+    def dispatch(
+        self,
+        scene: str,
+        task_name: str,
+        timeout_sec: float = 20.0,
+        result_timeout_sec: float = 180.0,
+    ) -> DispatchResult:
         action_name = SCENE_ACTION_NAMES[scene]
         client = ActionClient(self, Delivery, action_name)
         self.get_logger().info(f"Waiting for action server '{action_name}'")
@@ -178,7 +202,22 @@ class TaskDispatchNode(Node):
             })
 
         result_future = goal_handle.get_result_async()
-        rclpy.spin_until_future_complete(self, result_future)
+        rclpy.spin_until_future_complete(self, result_future, timeout_sec=result_timeout_sec)
+        if not result_future.done():
+            cancel_future = goal_handle.cancel_goal_async()
+            rclpy.spin_until_future_complete(self, cancel_future, timeout_sec=5.0)
+            return DispatchResult(
+                True,
+                "TIMEOUT",
+                "TIMEOUT",
+                time.time() - start_time,
+                {
+                    "scene": scene,
+                    "task": task_name,
+                    "route": list(goal.semantic_route),
+                    "semantic_goal_id": goal.semantic_goal_id,
+                },
+            )
         wrapped_result = result_future.result()
         result = wrapped_result.result
         return DispatchResult(

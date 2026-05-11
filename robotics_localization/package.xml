@@ -3,11 +3,15 @@
 <package format="3">
   <name>robotics_localization</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Localization launch and helper nodes for the course mobile robot simulation.</description>
   <maintainer email="msd030428@gmail.com">kdw</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>geometry_msgs</depend>
+  <depend>rclcpp</depend>
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>xacro</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
