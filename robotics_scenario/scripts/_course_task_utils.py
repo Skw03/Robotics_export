@@ -4,13 +4,15 @@ import json
 import math
 import time
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from robotics_interfaces.action import Delivery
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 
 
 SEMANTIC_POSES: Dict[str, Dict[str, Dict[str, float]]] = {
@@ -175,6 +177,65 @@ def build_goal(scene: str, task_name: str) -> Delivery.Goal:
 class TaskDispatchNode(Node):
     def __init__(self):
         super().__init__("course_task_dispatcher")
+        self._collecting_metrics = False
+        self._path_length_m = 0.0
+        self._last_odom_xy: Optional[Tuple[float, float]] = None
+        self._min_obstacle_dist_m = float("inf")
+        self._near_collision_events = 0
+        self._near_collision_active = False
+        self._near_collision_threshold_m = 0.25
+        self.create_subscription(Odometry, "/odom", self._on_odom, 20)
+        self.create_subscription(LaserScan, "/scan", self._on_scan, 20)
+
+    def _reset_metrics(self):
+        self._path_length_m = 0.0
+        self._last_odom_xy = None
+        self._min_obstacle_dist_m = float("inf")
+        self._near_collision_events = 0
+        self._near_collision_active = False
+
+    def _on_odom(self, msg: Odometry):
+        if not self._collecting_metrics:
+            return
+        x = float(msg.pose.pose.position.x)
+        y = float(msg.pose.pose.position.y)
+        if self._last_odom_xy is not None:
+            dx = x - self._last_odom_xy[0]
+            dy = y - self._last_odom_xy[1]
+            self._path_length_m += math.hypot(dx, dy)
+        self._last_odom_xy = (x, y)
+
+    def _on_scan(self, msg: LaserScan):
+        if not self._collecting_metrics:
+            return
+        finite_ranges = [r for r in msg.ranges if math.isfinite(r) and r > 0.0]
+        if not finite_ranges:
+            return
+        min_range = min(finite_ranges)
+        if min_range < self._min_obstacle_dist_m:
+            self._min_obstacle_dist_m = min_range
+
+        is_near = min_range <= self._near_collision_threshold_m
+        if is_near and not self._near_collision_active:
+            self._near_collision_events += 1
+        self._near_collision_active = is_near
+
+    def _start_metrics_collection(self, near_collision_threshold_m: float):
+        self._near_collision_threshold_m = near_collision_threshold_m
+        self._reset_metrics()
+        self._collecting_metrics = True
+
+    def _stop_metrics_collection(self) -> Dict[str, float]:
+        self._collecting_metrics = False
+        min_obstacle_dist_m = self._min_obstacle_dist_m
+        if not math.isfinite(min_obstacle_dist_m):
+            min_obstacle_dist_m = -1.0
+        return {
+            "path_length_m": round(self._path_length_m, 3),
+            "min_obstacle_dist_m": round(min_obstacle_dist_m, 3),
+            "near_collision_events": int(self._near_collision_events),
+            "near_collision_threshold_m": round(self._near_collision_threshold_m, 3),
+        }
 
     def dispatch(
         self,
@@ -182,6 +243,8 @@ class TaskDispatchNode(Node):
         task_name: str,
         timeout_sec: float = 20.0,
         result_timeout_sec: float = 180.0,
+        collect_metrics: bool = True,
+        near_collision_threshold_m: float = 0.25,
     ) -> DispatchResult:
         action_name = SCENE_ACTION_NAMES[scene]
         client = ActionClient(self, Delivery, action_name)
@@ -190,15 +253,19 @@ class TaskDispatchNode(Node):
             raise RuntimeError(f"Action server '{action_name}' is not available")
 
         goal = build_goal(scene, task_name)
+        if collect_metrics:
+            self._start_metrics_collection(near_collision_threshold_m)
         start_time = time.time()
         send_future = client.send_goal_async(goal)
         rclpy.spin_until_future_complete(self, send_future, timeout_sec=timeout_sec)
         goal_handle = send_future.result()
         if goal_handle is None or not goal_handle.accepted:
+            metrics = self._stop_metrics_collection() if collect_metrics else {}
             return DispatchResult(False, "REJECTED", "REJECTED", time.time() - start_time, {
                 "scene": scene,
                 "task": task_name,
                 "route": list(goal.semantic_route),
+                "metrics": metrics,
             })
 
         result_future = goal_handle.get_result_async()
@@ -206,6 +273,7 @@ class TaskDispatchNode(Node):
         if not result_future.done():
             cancel_future = goal_handle.cancel_goal_async()
             rclpy.spin_until_future_complete(self, cancel_future, timeout_sec=5.0)
+            metrics = self._stop_metrics_collection() if collect_metrics else {}
             return DispatchResult(
                 True,
                 "TIMEOUT",
@@ -216,10 +284,12 @@ class TaskDispatchNode(Node):
                     "task": task_name,
                     "route": list(goal.semantic_route),
                     "semantic_goal_id": goal.semantic_goal_id,
+                    "metrics": metrics,
                 },
             )
         wrapped_result = result_future.result()
         result = wrapped_result.result
+        metrics = self._stop_metrics_collection() if collect_metrics else {}
         return DispatchResult(
             True,
             result.final_status,
@@ -230,6 +300,7 @@ class TaskDispatchNode(Node):
                 "task": task_name,
                 "route": list(goal.semantic_route),
                 "semantic_goal_id": goal.semantic_goal_id,
+                "metrics": metrics,
             },
         )
 
