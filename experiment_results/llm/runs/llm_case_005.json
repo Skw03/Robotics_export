@@ -6,8 +6,8 @@
     "confidence": 0.55,
     "rationale": "Keyword fallback parser mapped the command to a preset task.",
     "parser": "keyword_fallback",
-    "latency_sec": 1.0967254638671875e-05,
-    "error": "fallback forced"
+    "latency_sec": 30.058931350708008,
+    "error": "URLError: <urlopen error [Errno 101] Network is unreachable>"
   },
   "model": ""
 }

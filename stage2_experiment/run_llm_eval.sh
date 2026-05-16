@@ -2,15 +2,24 @@
 set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+WORKSPACE="${WORKSPACE:-$HOME/ros2_ws}"
 INPUT_FILE="${INPUT_FILE:-$PROJECT_ROOT/experiment_results/llm/inputs.txt}"
 OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_ROOT/experiment_results/llm/runs}"
 MODEL="${MODEL:-${OPENAI_MODEL:-gpt-5.4-mini}}"
 FORCE_FALLBACK="${FORCE_FALLBACK:-false}"
 DRY_RUN="${DRY_RUN:-true}"
 
+set +u
 source /opt/ros/humble/setup.bash
-if [[ -f "$PROJECT_ROOT/install/local_setup.bash" ]]; then
+set -u
+if [[ -f "$WORKSPACE/install/local_setup.bash" ]]; then
+  set +u
+  source "$WORKSPACE/install/local_setup.bash"
+  set -u
+elif [[ -f "$PROJECT_ROOT/install/local_setup.bash" ]]; then
+  set +u
   source "$PROJECT_ROOT/install/local_setup.bash"
+  set -u
 fi
 
 mkdir -p "$OUTPUT_DIR"

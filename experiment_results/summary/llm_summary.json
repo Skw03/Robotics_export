@@ -2,8 +2,8 @@
   "samples": 5,
   "fallback_count": 5,
   "fallback_rate": 1.0,
-  "latency_sec_mean": 0.0001,
+  "latency_sec_mean": 30.0775,
   "error_type_counts": {
-    "fallback forced": 5
+    "URLError": 5
   }
 }
