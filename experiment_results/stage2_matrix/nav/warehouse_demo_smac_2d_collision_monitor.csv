@@ -1,0 +1,11 @@
+trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,path_length_m,min_obstacle_dist_m,near_collision_events,near_collision_threshold_m,route,error,notes
+1,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.289,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+2,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.015,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+3,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.012,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+4,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.013,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+5,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.013,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+6,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.015,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+7,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.021,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+8,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.024,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+9,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.027,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor
+10,warehouse,demo,smac_2d,collision_monitor,True,FAILED,FAILED,0.029,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=collision_monitor

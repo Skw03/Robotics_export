@@ -1,0 +1,11 @@
+trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,path_length_m,min_obstacle_dist_m,near_collision_events,near_collision_threshold_m,route,error,notes
+1,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.301,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+2,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.012,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+3,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.015,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+4,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.017,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+5,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.016,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+6,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.015,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+7,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.02,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+8,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.012,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+9,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.014,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap
+10,warehouse,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.02,0.0,-1.0,0,0.25,staging_area -> demo_checkpoint -> staging_area,,matrix scene=warehouse planner=smac_2d avoidance=baseline_costmap

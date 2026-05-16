@@ -64,7 +64,8 @@ generate_profile() {
     --base "$base_file" \
     --planner-profile "$planner" \
     --avoidance-profile "$avoidance" \
-    --output "$out_file"
+    --output "$out_file" \
+    >/dev/null
 
   echo "$out_file"
 }

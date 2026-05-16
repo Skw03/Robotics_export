@@ -1,0 +1,5 @@
+send the warehouse robot to complete a delivery loop
+dispatch an office patrol route through the checkpoints
+run a short stage2 demo in office
+请让仓库机器人执行一次配送任务
+在办公室场景执行巡检

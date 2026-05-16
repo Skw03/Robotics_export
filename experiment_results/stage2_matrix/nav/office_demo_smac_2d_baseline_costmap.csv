@@ -1,0 +1,11 @@
+trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,path_length_m,min_obstacle_dist_m,near_collision_events,near_collision_threshold_m,route,error,notes
+1,office,demo,smac_2d,baseline_costmap,False,REJECTED,REJECTED,20.001,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+2,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.211,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+3,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.015,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+4,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.016,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+5,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.017,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+6,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.012,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+7,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.019,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+8,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.012,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+9,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.024,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
+10,office,demo,smac_2d,baseline_costmap,True,FAILED,FAILED,0.032,0.0,-1.0,0,0.25,charger -> patrol_a1,,matrix scene=office planner=smac_2d avoidance=baseline_costmap
