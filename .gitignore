@@ -335,6 +335,12 @@ paket-files/
 __pycache__/
 *.pyc
 
+# ROS 2 / colcon workspace outputs
+build/
+install/
+log/
+.colcon/
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config

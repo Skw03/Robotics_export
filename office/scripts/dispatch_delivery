@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$#" -eq 0 ]]; then
+  set -- \
+    --use_sim_time \
+    -p pantry \
+    -ph coke_dispenser \
+    -pp coke,1 \
+    -d hardware_2 \
+    -dh coke_ingestor \
+    -dp coke,1
+fi
+
+exec ros2 run office_tasks dispatch_delivery "$@"

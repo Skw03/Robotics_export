@@ -1,0 +1,30 @@
+﻿<?xml version='1.0' ?>
+
+<launch>
+  <arg name="use_sim_time" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="use_rviz" default="false"/>
+
+  <let name="rviz_headless" if="$(eval &quot;'$(var use_rviz)' in ['1', 'true', 'True']&quot;)" value="false"/>
+  <let name="rviz_headless" unless="$(eval &quot;'$(var use_rviz)' in ['1', 'true', 'True']&quot;)" value="true"/>
+
+  <!-- Common launch -->
+  <include file="$(find-pkg-share office_demos)/common.launch.xml">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="headless" value="$(var rviz_headless)"/>
+    <arg name="viz_config_file" value ="$(find-pkg-share office_demos)/include/office/office.rviz"/>
+    <arg name="config_file" value="$(find-pkg-share office_maps)/office/office.building.yaml"/>
+    <arg name="use_reservation_node" value="false"/>
+  </include>
+
+  <!-- TinyRobot fleet adapter -->
+  <group>
+    <include file="$(find-pkg-share office_fleet_adapter)/launch/fleet_adapter.launch.xml">
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="nav_graph_file" value="$(find-pkg-share office_maps)/maps/office/nav_graphs/0.yaml" />
+      <arg name="config_file" value="$(find-pkg-share office_demos)/config/office/tinyRobot_config.yaml"/>
+    </include>
+  </group>
+
+</launch>
+

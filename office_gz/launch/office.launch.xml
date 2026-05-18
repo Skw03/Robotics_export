@@ -1,0 +1,24 @@
+﻿<?xml version='1.0' ?>
+
+<launch>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="sim_update_rate" default="100"/>
+  <arg name="force_software_gl" default="true"/>
+  <arg name="use_rviz" default="false"/>
+
+  <!-- Common launch -->
+  <include file="$(find-pkg-share office_demos)/office.launch.xml">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="use_rviz" value="$(var use_rviz)"/>
+  </include>
+
+  <!-- Simulation launch -->
+  <include file="$(find-pkg-share office_gz)/simulation.launch.xml">
+    <arg name="map_name" value="office" />
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="sim_update_rate" value="$(var sim_update_rate)"/>
+    <arg name="force_software_gl" value="$(var force_software_gl)"/>
+  </include>
+
+</launch>

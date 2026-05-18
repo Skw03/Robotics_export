@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' ?>
+
+<launch>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="sim_update_rate" default='100'/>
+
+  <!-- Common launch -->
+  <include file="$(find-pkg-share office_demos)/office_mock_traffic_light.launch.xml">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="headless" value="$(var headless)"/>
+  </include>
+
+  <!-- Simulation launch -->
+  <include file="$(find-pkg-share office_gz)/simulation.launch.xml">
+    <arg name="map_name" value="office" />
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="sim_update_rate" value="$(var sim_update_rate)"/>
+  </include>
+
+</launch>

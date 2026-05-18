@@ -1,0 +1,41 @@
+﻿<?xml version='1.0' ?>
+
+<launch>
+  <arg name="use_sim_time" default="false"/>
+  <arg name="headless" default="false"/>
+  <arg name="use_rviz" default="false"/>
+
+  <let name="rviz_headless" if="$(eval &quot;'$(var use_rviz)' in ['1', 'true', 'True']&quot;)" value="false"/>
+  <let name="rviz_headless" unless="$(eval &quot;'$(var use_rviz)' in ['1', 'true', 'True']&quot;)" value="true"/>
+
+  <!-- Common launch -->
+  <include file="$(find-pkg-share office_demos)/common.launch.xml">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="headless" value="$(var rviz_headless)"/>
+    <arg name="viz_config_file" value ="$(find-pkg-share office_demos)/include/office/office.rviz"/>
+    <arg name="config_file" value="$(find-pkg-share office_maps)/office/office.building.yaml"/>
+  </include>
+
+  <group>
+    <!-- TinyRobot full control fleet adapter -->
+    <include file="$(find-pkg-share office_fleet_adapter)/launch/fleet_adapter.launch.xml">
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="nav_graph_file" value="$(find-pkg-share office_maps)/maps/office/nav_graphs/0.yaml" />
+      <arg name="config_file" value="$(find-pkg-share office_demos)/config/office_mock_traffic_light/tinyRobot1_config.yaml"/>
+    </include>
+
+    <!-- TinyRobot traffic light fleet adapter -->
+    <include file="$(find-pkg-share office_demos)/include/adapters/tinyRobot_mock_traffic_light.launch.xml">
+      <arg name="fleet_name" value="tinyRobot2"/>
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="nav_graph_file" value="$(find-pkg-share office_maps)/maps/office/nav_graphs/0.yaml" />
+    </include>
+    <include file="$(find-pkg-share rmf_fleet_adapter)/robot_state_aggregator.launch.xml">
+      <arg name="robot_prefix" value="tinyRobot2"/>
+      <arg name="fleet_name" value="tinyRobot2"/>
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    </include>
+  </group>
+
+</launch>
+

@@ -28,7 +28,6 @@ def parse_args():
     parser.add_argument("--output-dir", default="experiment_results")
     parser.add_argument("--notes", default="")
     parser.add_argument("--result-timeout", type=float, default=180.0)
-    parser.add_argument("--near-collision-threshold", type=float, default=0.25)
     return parser.parse_args()
 
 
@@ -51,10 +50,6 @@ def write_outputs(records: List[Dict[str, object]], output_dir: pathlib.Path, st
         "status",
         "task_status",
         "elapsed_sec",
-        "path_length_m",
-        "min_obstacle_dist_m",
-        "near_collision_events",
-        "near_collision_threshold_m",
         "route",
         "error",
         "notes",
@@ -77,16 +72,9 @@ def main():
         for trial in range(1, args.trials + 1):
             started_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
             try:
-                result = node.dispatch(
-                    args.scene,
-                    args.task,
-                    result_timeout_sec=args.result_timeout,
-                    collect_metrics=True,
-                    near_collision_threshold_m=args.near_collision_threshold,
-                )
+                result = node.dispatch(args.scene, args.task, result_timeout_sec=args.result_timeout)
                 payload = json.loads(dump_result(result))
                 task_spec = payload.get("task_spec", {})
-                metrics = task_spec.get("metrics", {})
                 record: Dict[str, object] = {
                     "trial": trial,
                     "started_at": started_at,
@@ -98,10 +86,6 @@ def main():
                     "status": payload.get("status", ""),
                     "task_status": payload.get("task_status", ""),
                     "elapsed_sec": payload.get("elapsed_sec", 0.0),
-                    "path_length_m": metrics.get("path_length_m", 0.0),
-                    "min_obstacle_dist_m": metrics.get("min_obstacle_dist_m", -1.0),
-                    "near_collision_events": metrics.get("near_collision_events", 0),
-                    "near_collision_threshold_m": metrics.get("near_collision_threshold_m", args.near_collision_threshold),
                     "route": " -> ".join(task_spec.get("route", [])),
                     "error": "",
                     "notes": args.notes,
@@ -118,10 +102,6 @@ def main():
                     "status": "ERROR",
                     "task_status": "ERROR",
                     "elapsed_sec": 0.0,
-                    "path_length_m": 0.0,
-                    "min_obstacle_dist_m": -1.0,
-                    "near_collision_events": 0,
-                    "near_collision_threshold_m": args.near_collision_threshold,
                     "route": "",
                     "error": f"{type(exc).__name__}: {exc}",
                     "notes": args.notes,

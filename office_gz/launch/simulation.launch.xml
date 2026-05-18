@@ -1,0 +1,47 @@
+﻿<?xml version='1.0' ?>
+
+<launch>
+  <arg name="map_package" default="office_maps" description="Name of the map package" />
+  <arg name="map_name" description="Name of the office_demos map to simulate" />
+  <arg name="headless" default="false"/>
+  <arg name="use_crowdsim" default="0"/>
+  <arg name="sim_update_rate" default="100"/>
+  <arg name="force_software_gl" default="true"/>
+
+  <let name="world_path" value="$(find-pkg-share $(var map_package))/maps/$(var map_name)/$(var map_name).world" />
+  <let name="map_model_path" value="$(find-pkg-share $(var map_package))/maps/$(var map_name)/models" />
+  <let name="asset_model_path" value="$(find-pkg-share office_assets)/models" />
+  <let name="fuel_model_path" value="$(env HOME)/.gazebo/models" />
+  <let name="robot_plugin_path" value="/opt/ros/humble/lib/rmf_robot_sim_gz_plugins" />
+  <let name="building_plugin_path" value="/opt/ros/humble/lib/rmf_building_sim_gz_plugins" />
+  <let name="resource_paths" value="$(var map_model_path):$(var asset_model_path):$(var fuel_model_path)" />
+  <let name="plugin_paths" value="$(var robot_plugin_path):$(var building_plugin_path)" />
+
+  <let name="menge_resource_path" value="" />
+
+  <group>
+    <set_env name="GZ_SIM_RESOURCE_PATH" value="$(var resource_paths)" />
+    <set_env name="IGN_GAZEBO_RESOURCE_PATH" value="$(var resource_paths)" />
+    <set_env name="MENGE_RESOURCE_PATH" value="$(var menge_resource_path)" />
+    <set_env name="GZ_SIM_SYSTEM_PLUGIN_PATH" value="$(var plugin_paths)" />
+    <set_env name="IGN_GAZEBO_SYSTEM_PLUGIN_PATH" value="$(var plugin_paths)" />
+
+    <!-- WSLg + Ignition GUI can fail GLX/EGL context setup. Keep rendering conservative. -->
+    <set_env name="LIBGL_ALWAYS_SOFTWARE" value="1" />
+    <set_env name="MESA_LOADER_DRIVER_OVERRIDE" value="llvmpipe" />
+    <set_env name="QT_QPA_PLATFORM" value="xcb" />
+    <set_env name="QT_XCB_GL_INTEGRATION" value="xcb_glx" />
+    <set_env name="QSG_RENDER_LOOP" value="basic" />
+
+    <!-- Run server and GUI as separate processes so GUI shutdown does not kill the simulation server. -->
+    <executable cmd="ign gazebo -s -r -v 3 $(var world_path) -z $(var sim_update_rate)" output="both" />
+    <executable cmd="ign gazebo -g -v 3" output="both" />
+  </group>
+
+  <!-- ros_gz bridge for simulation clock -->
+  <node pkg="ros_gz_bridge" exec="parameter_bridge"
+    args="/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+    />
+
+</launch>
+
