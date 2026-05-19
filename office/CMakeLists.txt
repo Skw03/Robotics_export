@@ -10,7 +10,9 @@ install(DIRECTORY
 
 install(PROGRAMS
   scripts/dispatch_delivery
+  scripts/dispatch_patrol
   scripts/gui_delivery_test
+  scripts/gui_patrol_test
   DESTINATION lib/${PROJECT_NAME}
 )
 

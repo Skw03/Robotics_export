@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "$#" -eq 0 ]]; then
-  set -- \
-    --use_sim_time \
+has_pickup=false
+for arg in "$@"; do
+  if [[ "$arg" == "-p" || "$arg" == "--pickups" ]]; then
+    has_pickup=true
+    break
+  fi
+done
+
+if [[ "$has_pickup" == false ]]; then
+  set -- "$@" \
     -p pantry \
-    -ph coke_dispenser \
-    -pp coke,1 \
+    -ph file_dispenser \
+    -pp file,1 \
     -d hardware_2 \
-    -dh coke_ingestor \
-    -dp coke,1
+    -dh file_ingestor \
+    -dp file,1
 fi
 
 exec ros2 run office_tasks dispatch_delivery "$@"

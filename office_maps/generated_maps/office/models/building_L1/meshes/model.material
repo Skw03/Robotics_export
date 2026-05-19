@@ -50,6 +50,19 @@ material floor_4_Diffuse
 		}
 	}
 }
+material floor_5_Diffuse
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture concrete2.png
+			}
+		}
+	}
+}
 material wall_1_Diffuse
 {
 	technique
@@ -98,6 +111,19 @@ material wall_4_Diffuse
 			texture_unit
 			{
 				texture blue_linoleum_high_contrast.png
+			}
+		}
+	}
+}
+material wall_5_Diffuse
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture wall_white.png
 			}
 		}
 	}

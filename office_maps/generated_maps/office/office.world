@@ -332,31 +332,31 @@
       <static>True</static>
     </include>
     <include>
-      <name>coke_dispenser</name>
+      <name>file_dispenser</name>
       <uri>model://TeleportDispenser</uri>
       <pose>17.75523273606308 -5.500954783258237 1.08 0 0 1.5708</pose>
       <static>True</static>
     </include>
     <include>
-      <name>coke_dispenser_2</name>
+      <name>file_dispenser_2</name>
       <uri>model://TeleportDispenser</uri>
       <pose>17.737472127737746 -5.839032788063036 0.63 0 0 1.5708</pose>
       <static>True</static>
     </include>
     <include>
-      <name>Coke</name>
-      <uri>model://Coke</uri>
+      <name>FileBox</name>
+      <uri>model://file_box_1</uri>
       <pose>17.766119362519884 -5.5069991466253905 1.08 0 0 1.5708</pose>
       <static>False</static>
     </include>
     <include>
-      <name>coke_ingestor</name>
+      <name>file_ingestor</name>
       <uri>model://TeleportIngestor</uri>
       <pose>22.542656349675333 -7.610446063889577 0.805 0 0 1.5708</pose>
       <static>True</static>
     </include>
     <include>
-      <name>coke_ingestor_2</name>
+      <name>file_ingestor_2</name>
       <uri>model://TeleportIngestor</uri>
       <pose>5.661375911840242 -5.958557110725269 0.8 0 0 1.5708</pose>
       <static>True</static>
@@ -488,6 +488,46 @@
       <static>True</static>
     </include>
     <include>
+      <name>trash_ingestor</name>
+      <uri>model://TeleportIngestor</uri>
+      <pose>16.507715078359277 -0.8042220166379742 0.805 0 0 1.5708</pose>
+      <static>True</static>
+    </include>
+    <include>
+      <name>trash_room_bin_1</name>
+      <uri>model://TrashBin</uri>
+      <pose>16.084440333 -0.550257171 0.0 0 0 1.5708</pose>
+      <static>True</static>
+    </include>
+    <include>
+      <name>trash_room_bin_2</name>
+      <uri>model://TrashBin</uri>
+      <pose>16.930989824 -0.550257171 0.0 0 0 1.5708</pose>
+      <static>True</static>
+    </include>
+    <model name="trash_room_floor_box">
+      <static>true</static>
+      <link name="floor">
+        <visual name="visual"><pose>15.099944 -1.409246 -0.025 0 0 0</pose><geometry><box><size>6.60 2.48 0.05</size></box></geometry><material><ambient>0.42 0.43 0.42 1</ambient><diffuse>0.42 0.43 0.42 1</diffuse></material></visual>
+        <collision name="collision"><pose>15.099944 -1.409246 -0.025 0 0 0</pose><geometry><box><size>6.60 2.48 0.05</size></box></geometry></collision>
+      </link>
+    </model>
+    <model name="trash_room_box_walls">
+      <static>true</static>
+      <link name="walls">
+        <visual name="right_wall_visual"><pose>17.776 -1.1851695 1.25 0 0 0</pose><geometry><box><size>0.12 2.03 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
+        <collision name="right_wall_collision"><pose>17.776 -1.1851695 1.25 0 0 0</pose><geometry><box><size>0.12 2.03 2.5</size></box></geometry></collision>
+        <visual name="top_wall_visual"><pose>16.507715 -0.16931 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
+        <collision name="top_wall_collision"><pose>16.507715 -0.16931 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry></collision>
+        <visual name="bottom_wall_visual"><pose>16.507715 -2.201029 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
+        <collision name="bottom_wall_collision"><pose>16.507715 -2.201029 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry></collision>
+        <visual name="left_wall_upper_visual"><pose>15.23943 -0.423275 1.25 0 0 0</pose><geometry><box><size>0.12 0.51 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
+        <collision name="left_wall_upper_collision"><pose>15.23943 -0.423275 1.25 0 0 0</pose><geometry><box><size>0.12 0.51 2.5</size></box></geometry></collision>
+        <visual name="left_wall_lower_visual"><pose>15.23943 -1.862409 1.25 0 0 0</pose><geometry><box><size>0.12 0.68 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
+        <collision name="left_wall_lower_collision"><pose>15.23943 -1.862409 1.25 0 0 0</pose><geometry><box><size>0.12 0.68 2.5</size></box></geometry></collision>
+      </link>
+    </model>
+    <include>
       <name>tinyRobot1</name>
       <uri>model://TinyRobot</uri>
       <pose>10.433053704916215 -5.5750955876973505 0.0 0 0 1.3286194884563705</pose>
@@ -592,9 +632,9 @@
         <pose>-0.473864332736097 0 0 0 0 0</pose>
       </joint>
       <plugin name="door" filename="libdoor.so">
-        <v_max_door>0.5</v_max_door>
-        <a_max_door>0.3</a_max_door>
-        <a_nom_door>0.15</a_nom_door>
+        <v_max_door>1.5</v_max_door>
+        <a_max_door>1.0</a_max_door>
+        <a_nom_door>0.6</a_nom_door>
         <dx_min_door>0.01</dx_min_door>
         <f_max_door>500.0</f_max_door>
         <door name="main_door" type="DoubleSwingDoor" left_joint_name="left_joint" right_joint_name="right_joint" />
@@ -649,9 +689,9 @@
         <pose>0.44330130831587417 0 0 0 0 0</pose>
       </joint>
       <plugin name="door" filename="libdoor.so">
-        <v_max_door>0.5</v_max_door>
-        <a_max_door>0.3</a_max_door>
-        <a_nom_door>0.15</a_nom_door>
+        <v_max_door>1.5</v_max_door>
+        <a_max_door>1.0</a_max_door>
+        <a_nom_door>0.6</a_nom_door>
         <dx_min_door>0.01</dx_min_door>
         <f_max_door>500.0</f_max_door>
         <door name="coe_door" type="SwingDoor" left_joint_name="empty_joint" right_joint_name="right_joint" />
@@ -706,10 +746,10 @@
         <pose>0.44463088501034426 0 0 0 0 0</pose>
       </joint>
       <plugin name="door" filename="libdoor.so">
-        <v_max_door>0.5</v_max_door>
-        <a_max_door>0.3</a_max_door>
-        <a_nom_door>0.15</a_nom_door>
-        <dx_min_door>0.01</dx_min_door>
+        <v_max_door>10.0</v_max_door>
+        <a_max_door>6.0</a_max_door>
+        <a_nom_door>2.7</a_nom_door>
+        <dx_min_door>0.06</dx_min_door>
         <f_max_door>500.0</f_max_door>
         <door name="hardware_door" type="SwingDoor" left_joint_name="empty_joint" right_joint_name="right_joint" />
       </plugin>
@@ -719,6 +759,86 @@
       <uri>model://building_L1</uri>
       <pose>0 0 0.0 0 0 0</pose>
     </include>
+    <model name="waypoint_label_pantry">
+      <pose>16.84633487483844 -5.404067193990636 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_hardware_2">
+      <pose>20.948248106963362 -7.497347051865536 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_coe">
+      <pose>5.346484897599354 -4.976813665783051 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>1 0.9 0.1 1</ambient><diffuse>1 0.9 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_trash_room">
+      <pose>16.507715078359277 -0.8042220166379742 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.95 0.25 0.15 1</ambient><diffuse>0.95 0.25 0.15 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.95 0.25 0.15 1</ambient><diffuse>0.95 0.25 0.15 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_A1">
+      <pose>10.086146188918223 -6.979436538645566 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_B">
+      <pose>7.988303429285765 -10.780257513236124 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_C">
+      <pose>18.813842874806067 -11.078979432195132 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_D1">
+      <pose>16.85582469463477 -6.881363780090288 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.1 0.6 1 1</ambient><diffuse>0.1 0.6 1 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_A2">
+      <pose>18.949764861112804 -4.039082328888211 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.2 0.8 0.35 1</ambient><diffuse>0.2 0.8 0.35 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.2 0.8 0.35 1</ambient><diffuse>0.2 0.8 0.35 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="waypoint_label_patrol_D2">
+      <pose>10.247854072726847 -3.09205587858002 0.02 0 0 0</pose>
+      <static>true</static>
+      <link name="label">
+        <visual name="cross_a"><pose>0 0 0 0 0 0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.2 0.8 0.35 1</ambient><diffuse>0.2 0.8 0.35 1</diffuse></material></visual>
+        <visual name="cross_b"><pose>0 0 0 0 0 -0.785398</pose><geometry><box><size>0.85 0.12 0.03</size></box></geometry><material><ambient>0.2 0.8 0.35 1</ambient><diffuse>0.2 0.8 0.35 1</diffuse></material></visual>
+      </link>
+    </model>
     <rmf_charger_waypoints name="charger_waypoints">
       <rmf_vertex name="tinyRobot1_charger" x="10.433053704916215" y="-5.5750955876973505" level="L1" />
       <rmf_vertex name="tinyRobot2_charger" x="20.423692180237488" y="-5.312098057266895" level="L1" />

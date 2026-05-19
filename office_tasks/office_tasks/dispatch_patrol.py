@@ -175,7 +175,7 @@ def main(argv=sys.argv):
 
     task_requester = TaskRequester(args_without_ros)
     rclpy.spin_until_future_complete(
-        task_requester, task_requester.response, timeout_sec=5.0
+        task_requester, task_requester.response, timeout_sec=30.0
     )
     if task_requester.response.done():
         print(f'Got response: \n{task_requester.response.result()}')

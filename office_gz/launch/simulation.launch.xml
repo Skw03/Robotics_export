@@ -33,9 +33,8 @@
     <set_env name="QT_XCB_GL_INTEGRATION" value="xcb_glx" />
     <set_env name="QSG_RENDER_LOOP" value="basic" />
 
-    <!-- Run server and GUI as separate processes so GUI shutdown does not kill the simulation server. -->
-    <executable cmd="ign gazebo -s -r -v 3 $(var world_path) -z $(var sim_update_rate)" output="both" />
-    <executable cmd="ign gazebo -g -v 3" output="both" />
+    <!-- WSLg is more reliable when Ignition creates the server and GUI from one process. -->
+    <executable cmd="ign gazebo -r -v 3 $(var world_path) -z $(var sim_update_rate)" output="both" />
   </group>
 
   <!-- ros_gz bridge for simulation clock -->

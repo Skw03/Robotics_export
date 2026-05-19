@@ -182,6 +182,24 @@ levels:
     - - 3
       - 14
       - {speed_limit: 0}
+    - - 1
+      - 29
+      - {door_name: main_door, speed_limit: 0}
+    - - 29
+      - 1
+      - {door_name: main_door, speed_limit: 0}
+    - - 29
+      - 30
+      - {speed_limit: 0}
+    - - 30
+      - 29
+      - {speed_limit: 0}
+    - - 30
+      - 31
+      - {speed_limit: 0}
+    - - 31
+      - 30
+      - {speed_limit: 0}
     vertices:
     - - 7.034165963251511
       - -2.1109896732307605
@@ -194,13 +212,13 @@ levels:
       - {name: patrol_D1}
     - - 18.7395242949738
       - -6.873981868527042
-      - {is_parking_spot: false, name: ''}
+      - {is_parking_spot: false, name: corridor_turn_D}
     - - 16.84633487483844
       - -5.404067193990636
-      - {is_holding_point: true, is_parking_spot: false, name: pantry, pickup_dispenser: coke_dispenser}
+      - {is_holding_point: true, is_parking_spot: false, name: pantry, pickup_dispenser: file_dispenser}
     - - 13.130566727628535
       - -3.964806076530507
-      - {name: ''}
+      - {name: hardware_corridor_south}
     - - 8.91185506220304
       - -6.181352005818735
       - {name: ''}
@@ -258,7 +276,7 @@ levels:
       - {name: ''}
     - - 5.346484897599354
       - -4.976813665783051
-      - {dropoff_ingestor: coke_ingestor_2, is_holding_point: true, is_parking_spot: false,
+      - {dropoff_ingestor: file_ingestor_2, is_holding_point: true, is_parking_spot: false,
         name: coe}
     - - 17.067495929413894
       - -11.09788288233358
@@ -268,10 +286,20 @@ levels:
       - {name: ''}
     - - 20.948248106963362
       - -7.497347051865536
-      - {dropoff_ingestor: coke_ingestor, is_holding_point: true, is_parking_spot: false,
+      - {dropoff_ingestor: file_ingestor, is_holding_point: true, is_parking_spot: false,
         name: hardware_2}
     - - 20.423692180237488
       - -5.312098057266895
       - {is_charger: true, is_holding_point: true, is_parking_spot: true, name: tinyRobot2_charger,
         spawn_robot_name: tinyRobot2, spawn_robot_type: TinyRobot}
+    - - 13.12998300807821
+      - -2.1163737279947784
+      - {is_parking_spot: false, name: main_door_exit}
+    - - 13.12998300807821
+      - -0.8042220166379742
+      - {is_parking_spot: false, name: corridor_to_trash}
+    - - 16.507715078359277
+      - -0.8042220166379742
+      - {dropoff_ingestor: trash_ingestor, is_holding_point: true, is_parking_spot: false,
+        name: trash_room}
 
