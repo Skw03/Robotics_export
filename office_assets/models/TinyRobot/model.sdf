@@ -237,6 +237,20 @@
           <emissive>0.45 0.08 0.0 1.0</emissive>
         </material>
       </visual>
+      <visual name='clean_payload_visual'>
+        <pose frame=''>-0.11 0 0.48 0 0 0</pose>
+        <transparency>1.0</transparency>
+        <geometry>
+          <box>
+            <size>0.26 0.20 0.16</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.02 0.02 0.02 1.0</ambient>
+          <diffuse>0.02 0.02 0.02 1.0</diffuse>
+          <emissive>0.01 0.01 0.01 1.0</emissive>
+        </material>
+      </visual>
       <visual name='base_footprint_fixed_joint_lump__base_link_visual_1'>
         <pose frame=''>-0.279 0.17 0.09 0 -0 -3.14159</pose>
         <geometry>

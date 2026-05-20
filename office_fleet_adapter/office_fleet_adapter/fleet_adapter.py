@@ -158,8 +158,10 @@ def initialize_fleet(config_yaml, nav_graph_path, node, use_sim_time):
         confirm.accept()
         return confirm
 
-    # Configure this fleet to perform any kind of teleop action
+    # Configure this fleet to perform simple composed actions
     fleet_handle.add_performable_action("teleop", _consider)
+    fleet_handle.add_performable_action("clean", _consider)
+    fleet_handle.add_performable_action("dispose_trash", _consider)
 
     def _updater_inserter(cmd_handle, update_handle):
         """Insert a RobotUpdateHandle."""
@@ -169,6 +171,7 @@ def initialize_fleet(config_yaml, nav_graph_path, node, use_sim_time):
                              description: dict,
                              execution:
                              adpt.robot_update_handle.ActionExecution):
+            action_category = description.get('category', category)
             with cmd_handle._lock:
                 if len(description) > 0 and\
                         description in cmd_handle.graph.keys:
@@ -180,6 +183,31 @@ def initialize_fleet(config_yaml, nav_graph_path, node, use_sim_time):
                 cmd_handle.on_waypoint = None
                 cmd_handle.on_lane = None
                 cmd_handle.action_execution = execution
+
+            cmd_handle.node.get_logger().info(
+                f"Robot {cmd_handle.name} starting action "
+                f"[{action_category}] for category [{category}] with "
+                f"description {description}")
+
+            if action_category in ["clean", "dispose_trash"]:
+                duration_ms = description.get(
+                    "unix_millis_action_duration_estimate", 5000)
+
+                def _finish_action():
+                    cmd_handle.node.get_logger().info(
+                        f"Robot {cmd_handle.name} performing "
+                        f"[{action_category}] for "
+                        f"{float(duration_ms) / 1000.0:.1f}s")
+                    time.sleep(max(float(duration_ms) / 1000.0, 0.0))
+                    if action_category == "clean":
+                        cmd_handle.api.set_trash_state(
+                            cmd_handle.name, "on_robot")
+                    elif action_category == "dispose_trash":
+                        cmd_handle.api.set_trash_state(
+                            cmd_handle.name, "in_bin")
+                    cmd_handle.complete_robot_action()
+
+                threading.Thread(target=_finish_action, daemon=True).start()
         # Set the action_executioner for the robot
         cmd_handle.update_handle.set_action_executor(_action_executor)
         if ("max_delay" in cmd_handle.config.keys()):

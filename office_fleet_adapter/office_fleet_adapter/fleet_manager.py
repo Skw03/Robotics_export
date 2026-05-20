@@ -21,6 +21,7 @@ import json
 import time
 import copy
 import argparse
+import subprocess
 
 import rclpy
 from rclpy.node import Node
@@ -77,6 +78,10 @@ class State:
         self.last_path_request = None
         self.last_completed_request = None
         self.mode_teleop = False
+        self.trash_state = 'hidden'
+        self.trash_follow_thread = None
+        self.trash_follow_stop = threading.Event()
+        self.trash_pose = None
         self.svy_transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3414')
         self.gps_pos = [0, 0]
 
@@ -112,6 +117,7 @@ class FleetManager(Node):
 
         self.robots = {}  # Map robot name to state
         self.docks = {}  # Map dock name to waypoints
+        self.spawned_trash_models = set()
 
         for robot_name, robot_config in self.config["robots"].items():
             self.robots[robot_name] = State()
@@ -332,6 +338,21 @@ class FleetManager(Node):
             response['success'] = True
             return response
 
+        @app.post('/open-rmf/office_demos_fm/trash_state/',
+                  response_model=Response)
+        async def trash_state(robot_name: str, state: str):
+            response = {'success': False, 'msg': ''}
+            if robot_name not in self.robots:
+                response['msg'] = f'Unknown robot [{robot_name}]'
+                return response
+            if state not in ['hidden', 'on_robot', 'in_bin']:
+                response['msg'] = f'Unsupported trash state [{state}]'
+                return response
+
+            self.set_trash_state(robot_name, state)
+            response['success'] = True
+            return response
+
     def robot_state_cb(self, msg):
         if (msg.name in self.robots):
             robot = self.robots[msg.name]
@@ -378,6 +399,267 @@ class FleetManager(Node):
             if(fleet.fleet_name == self.fleet_name):
                 for dock in fleet.params:
                     self.docks[dock.start] = dock.path
+
+    def set_trash_state(self, robot_name, state):
+        robot = self.robots[robot_name]
+        robot.trash_state = state
+        self.get_logger().info(
+            f'Setting trash visualization for [{robot_name}] to [{state}]')
+
+        if robot.trash_follow_thread is not None:
+            robot.trash_follow_stop.set()
+            robot.trash_follow_thread.join(timeout=1.0)
+            robot.trash_follow_thread = None
+            robot.trash_follow_stop.clear()
+
+        if state == 'hidden':
+            self.set_robot_payload_visual(robot_name, False)
+            self.remove_model(f'clean_payload_{robot_name}')
+            self.remove_model('trash_room_collected_trash')
+            return
+
+        if state == 'on_robot':
+            self.remove_model('trash_room_collected_trash')
+            self.set_robot_payload_visual(robot_name, True)
+            if robot.state is not None:
+                robot.trash_pose = self.robot_payload_pose(robot_name)
+                self.set_robot_trash_pose(robot_name, robot.trash_pose)
+
+            def follow_robot_trash():
+                while not robot.trash_follow_stop.wait(0.03):
+                    target = self.robot_payload_pose(robot_name)
+                    if target is None:
+                        continue
+                    if robot.trash_pose is None:
+                        robot.trash_pose = target
+                    else:
+                        robot.trash_pose = self.interpolate_pose(
+                            robot.trash_pose, target, 0.35)
+                    self.set_robot_trash_pose(robot_name, robot.trash_pose)
+
+            robot.trash_follow_thread = threading.Thread(
+                target=follow_robot_trash,
+                daemon=True)
+            robot.trash_follow_thread.start()
+            return
+
+        if state == 'in_bin':
+            self.set_robot_payload_visual(robot_name, False)
+            self.remove_model(f'clean_payload_{robot_name}')
+            self.spawn_or_move_trash_model('trash_room_collected_trash',
+                                           16.507715078359277,
+                                           -0.550257171,
+                                           0.75)
+
+    def spawn_or_move_trash_model(self, model_name, x, y, z, yaw=0.0):
+        if model_name not in self.spawned_trash_models:
+            if self.spawn_trash_model(model_name, x, y, z, yaw):
+                self.spawned_trash_models.add(model_name)
+                return
+
+        self.set_model_pose(model_name, x, y, z, yaw)
+
+    def update_robot_trash_pose(self, robot_name):
+        pose = self.robot_payload_pose(robot_name)
+        if pose is not None:
+            self.set_robot_trash_pose(robot_name, pose)
+
+    def robot_payload_pose(self, robot_name):
+        robot = self.robots.get(robot_name)
+        if robot is None or robot.state is None:
+            return None
+
+        location = robot.state.location
+        local_x = -0.11
+        local_y = 0.0
+        x = (
+            location.x
+            + math.cos(location.yaw) * local_x
+            - math.sin(location.yaw) * local_y
+        )
+        y = (
+            location.y
+            + math.sin(location.yaw) * local_x
+            + math.cos(location.yaw) * local_y
+        )
+        return (x, y, 0.43, location.yaw)
+
+    def interpolate_pose(self, current, target, alpha):
+        x = current[0] + (target[0] - current[0]) * alpha
+        y = current[1] + (target[1] - current[1]) * alpha
+        z = current[2] + (target[2] - current[2]) * alpha
+        dyaw = math.atan2(
+            math.sin(target[3] - current[3]),
+            math.cos(target[3] - current[3]))
+        yaw = current[3] + dyaw * alpha
+        return (x, y, z, yaw)
+
+    def set_robot_trash_pose(self, robot_name, pose):
+        x, y, z, yaw = pose
+        self.spawn_or_move_trash_model(
+            f'clean_payload_{robot_name}',
+            x,
+            y,
+            z,
+            yaw=yaw)
+
+    def set_robot_payload_visual(self, robot_name, visible):
+        visual_name = (
+            f'{robot_name}::base_footprint::clean_payload_visual')
+        req = (
+            'name: "%s" parent_name: "%s::base_footprint" '
+            'type: VISUAL visible: %s transparency: %.1f '
+            'pose: {position: {x: -0.11 y: 0 z: 0.48} '
+            'orientation: {x: 0 y: 0 z: 0 w: 1}} '
+            'geometry: {box: {size: {x: 0.26 y: 0.20 z: 0.16}}} '
+            'material: {ambient: {r: 0.02 g: 0.02 b: 0.02 a: 1} '
+            'diffuse: {r: 0.02 g: 0.02 b: 0.02 a: 1} '
+            'emissive: {r: 0.01 g: 0.01 b: 0.01 a: 1}}'
+        ) % (
+            visual_name,
+            robot_name,
+            'true' if visible else 'false',
+            0.0 if visible else 1.0)
+        return self.publish_ign_topic(
+            '/world/office/visual_config',
+            'ignition.msgs.Visual',
+            req)
+
+    def publish_ign_topic(self, topic, msgtype, msg):
+        cmd = [
+            'ign',
+            'topic',
+            '-t',
+            topic,
+            '-m',
+            msgtype,
+            '-p',
+            msg,
+        ]
+        try:
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=2.0,
+                check=False)
+            if result.returncode != 0:
+                self.get_logger().warn(
+                    f'Ignition topic [{topic}] publish failed: '
+                    f'{result.stderr.strip()}')
+                return False
+            return True
+        except Exception as e:
+            self.get_logger().warn(
+                f'Ignition topic [{topic}] publish failed: {e}')
+            return False
+
+    def spawn_trash_model(self, model_name, x, y, z, yaw=0.0):
+        sdf = (
+            '<sdf version="1.7">'
+            f'<model name="{model_name}">'
+            '<static>true</static>'
+            '<link name="trash">'
+            '<gravity>false</gravity>'
+            '<self_collide>false</self_collide>'
+            '<visual name="bag">'
+            '<geometry><box><size>0.26 0.20 0.16</size></box></geometry>'
+            '<material>'
+            '<ambient>0.02 0.02 0.02 1</ambient>'
+            '<diffuse>0.02 0.02 0.02 1</diffuse>'
+            '<emissive>0.01 0.01 0.01 1</emissive>'
+            '</material>'
+            '</visual>'
+            '</link>'
+            '</model>'
+            '</sdf>'
+        )
+        req = (
+            'sdf: "%s" name: "%s" allow_renaming: false '
+            'pose: {position: {x: %.3f y: %.3f z: %.3f} '
+            'orientation: {x: 0 y: 0 z: %.9f w: %.9f}}'
+        ) % (
+            sdf.replace('"', '\\"'),
+            model_name,
+            x,
+            y,
+            z,
+            math.sin(yaw / 2.0),
+            math.cos(yaw / 2.0))
+        ok = self.call_ign_service(
+            '/world/office/create',
+            'ignition.msgs.EntityFactory',
+            req)
+        if not ok:
+            self.get_logger().warn(
+                f'Unable to spawn trash model [{model_name}]')
+        return ok
+
+    def remove_model(self, model_name):
+        self.spawned_trash_models.discard(model_name)
+        req = f'name: "{model_name}" type: MODEL'
+        self.call_ign_service(
+            '/world/office/remove',
+            'ignition.msgs.Entity',
+            req)
+
+    def set_model_pose(self, model_name, x, y, z, yaw=0.0):
+        req = (
+            'name: "%s" position: {x: %.3f y: %.3f z: %.3f} '
+            'orientation: {x: 0 y: 0 z: %.9f w: %.9f}'
+        ) % (
+            model_name,
+            x,
+            y,
+            z,
+            math.sin(yaw / 2.0),
+            math.cos(yaw / 2.0))
+        ok = self.call_ign_service(
+            '/world/office/set_pose',
+            'ignition.msgs.Pose',
+            req)
+        if not ok:
+            self.get_logger().warn(
+                f'Unable to set pose for trash model [{model_name}]')
+
+    def call_ign_service(self, service, reqtype, req):
+        cmd = [
+            'ign',
+            'service',
+            '-s',
+            service,
+            '--reqtype',
+            reqtype,
+            '--reptype',
+            'ignition.msgs.Boolean',
+            '--timeout',
+            '1000',
+            '--req',
+            req,
+        ]
+        try:
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=2.0,
+                check=False)
+            if result.returncode != 0:
+                self.get_logger().warn(
+                    f'Ignition service [{service}] failed: '
+                    f'{result.stderr.strip()}')
+                return False
+            output = result.stdout.strip()
+            if output:
+                self.get_logger().info(
+                    f'Ignition service [{service}] response: {output}')
+            return 'data: true' in output or 'true' in output.lower()
+        except Exception as e:
+            self.get_logger().warn(
+                f'Ignition service [{service}] failed: {e}')
+            return False
 
     def get_robot_state(self, robot: State, robot_name):
         data = {}

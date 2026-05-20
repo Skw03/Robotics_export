@@ -522,9 +522,9 @@
         <visual name="bottom_wall_visual"><pose>16.507715 -2.201029 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
         <collision name="bottom_wall_collision"><pose>16.507715 -2.201029 1.25 0 0 0</pose><geometry><box><size>2.54 0.12 2.5</size></box></geometry></collision>
         <visual name="left_wall_upper_visual"><pose>15.23943 -0.423275 1.25 0 0 0</pose><geometry><box><size>0.12 0.51 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
-        <collision name="left_wall_upper_collision"><pose>15.23943 -0.423275 1.25 0 0 0</pose><geometry><box><size>0.12 0.51 2.5</size></box></geometry></collision>
+        <!-- Keep the trash room doorway visually clear while avoiding slotcar collision at the narrow entrance. -->
         <visual name="left_wall_lower_visual"><pose>15.23943 -1.862409 1.25 0 0 0</pose><geometry><box><size>0.12 0.68 2.5</size></box></geometry><material><ambient>0.88 0.88 0.82 1</ambient><diffuse>0.88 0.88 0.82 1</diffuse></material></visual>
-        <collision name="left_wall_lower_collision"><pose>15.23943 -1.862409 1.25 0 0 0</pose><geometry><box><size>0.12 0.68 2.5</size></box></geometry></collision>
+        <!-- Keep the trash room doorway visually clear while avoiding slotcar collision at the narrow entrance. -->
       </link>
     </model>
     <include>
@@ -552,18 +552,7 @@
             <diffuse>0.5 0.25 0 0.6</diffuse>
           </material>
         </visual>
-        <collision name="right_collision">
-          <geometry>
-            <box>
-              <size>0.937728665472194 0.03 2.2</size>
-            </box>
-          </geometry>
-          <surface>
-            <contact>
-              <collide_bitmask>0x02</collide_bitmask>
-            </contact>
-          </surface>
-        </collision>
+        <!-- Collision disabled for this demo route; the visual door remains. -->
         <inertial>
           <mass>50.0</mass>
           <inertia>
@@ -598,18 +587,7 @@
             <diffuse>0.5 0.25 0 0.6</diffuse>
           </material>
         </visual>
-        <collision name="left_collision">
-          <geometry>
-            <box>
-              <size>0.937728665472194 0.03 2.2</size>
-            </box>
-          </geometry>
-          <surface>
-            <contact>
-              <collide_bitmask>0x02</collide_bitmask>
-            </contact>
-          </surface>
-        </collision>
+        <!-- Collision disabled for this demo route; the visual door remains. -->
         <inertial>
           <mass>50.0</mass>
           <inertia>

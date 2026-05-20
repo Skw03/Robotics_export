@@ -140,14 +140,35 @@ class TaskRequester(Node):
 
         request['requester'] = self.args.requester
 
-        # Define task request category
-        request['category'] = 'patrol'
+        # Define patrol as a compose task so adapters that support composed
+        # go_to_place tasks can execute it without a custom patrol capability.
+        request['category'] = 'compose'
 
         if self.args.fleet:
             request['fleet_name'] = self.args.fleet
 
         # Define task request description
-        description = {'places': self.args.places, 'rounds': self.args.rounds}
+        activities = []
+        for _ in range(self.args.rounds):
+            for place in self.args.places:
+                activities.append(
+                    {
+                        'category': 'go_to_place',
+                        'description': place,
+                    }
+                )
+
+        description = {
+            'category': 'patrol',
+            'phases': [
+                {
+                    'activity': {
+                        'category': 'sequence',
+                        'description': {'activities': activities},
+                    }
+                }
+            ],
+        }
         request['description'] = description
         payload['request'] = request
         msg.json_msg = json.dumps(payload)

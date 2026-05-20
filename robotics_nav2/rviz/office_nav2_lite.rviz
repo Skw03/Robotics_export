@@ -957,21 +957,26 @@ Visualization Manager:
     - Class: nav2_rviz_plugins/GoalTool
   Transformation:
     Current:
-      Angle: -1.5707963267948966
-      Class: rviz_default_plugins/TopDownOrtho
+      Class: rviz_default_plugins/Orbit
+      Distance: 160
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 50.547
+        Y: -78.140
+        Z: 0
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Scene Overview
       Near Clip Distance: 0.009999999776482582
-      Scale: 180
+      Pitch: 1.5708
       Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz_default_plugins)
-      X: 50.547
-      Y: -78.140
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 1.5708
     Saved:
       - Angle: -1.5800007581710815
         Class: rviz_default_plugins/TopDownOrtho

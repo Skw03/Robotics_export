@@ -34,7 +34,7 @@ rmf_fleet:
   task_capabilities: # Specify the types of Office tasks that robots in this fleet are capable of performing
     loop: True
     delivery: True
-    clean: False
+    clean: True
     finishing_request: "park" # [park, charge, nothing]
 
 # TinyRobot CONFIG =================================================================

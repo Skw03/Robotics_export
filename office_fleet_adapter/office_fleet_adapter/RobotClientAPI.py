@@ -205,6 +205,23 @@ class RobotAPI:
             print(f'Other error: {err}')
         return False
 
+    def set_trash_state(self, robot_name: str, state: str):
+        '''Update the simulated trash visualization state.'''
+        url = self.prefix +\
+            f"/open-rmf/office_demos_fm/trash_state?robot_name={robot_name}" \
+            f"&state={state}"
+        try:
+            response = requests.post(url, timeout=self.timeout)
+            response.raise_for_status()
+            if self.debug:
+                print(f'Response: {response.json()}')
+            return response.json()['success']
+        except HTTPError as http_err:
+            print(f'HTTP error: {http_err}')
+        except Exception as err:
+            print(f'Other error: {err}')
+        return False
+
     def data(self, robot_name=None):
         if robot_name is None:
             url = self.prefix + f'/open-rmf/office_demos_fm/status/'
