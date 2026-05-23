@@ -1,0 +1,30 @@
+<?xml version='1.0' ?>
+
+<launch>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="headless" default="true"/>
+  <arg name="use_rviz" default="false"/>
+  <arg name="scan_rate" default="10.0"/>
+  <arg name="robot_name" default="tinyRobot1"/>
+
+  <include file="$(find-pkg-share office)/launch/office.launch.xml">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="use_rviz" value="$(var use_rviz)"/>
+  </include>
+
+  <node pkg="office"
+        exec="office_synthetic_lidar.py"
+        name="office_synthetic_lidar"
+        output="screen"
+        args="--robot-name $(var robot_name) --rate $(var scan_rate)">
+    <param name="use_sim_time" value="$(var use_sim_time)"/>
+  </node>
+
+  <node pkg="office"
+        exec="office_scan_mapper.py"
+        name="office_scan_mapper"
+        output="screen">
+    <param name="use_sim_time" value="$(var use_sim_time)"/>
+  </node>
+</launch>

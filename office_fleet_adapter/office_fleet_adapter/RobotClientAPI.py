@@ -1,4 +1,4 @@
-﻿# Copyright 2021 Open Source Robotics Foundation, Inc.
+# Copyright 2021 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ class RobotAPI:
             f'/open-rmf/office_demos_fm/stop_robot?robot_name={robot_name}' \
             f'&cmd_id={cmd_id}'
         try:
-            response = requests.get(url, self.timeout)
+            response = requests.get(url, timeout=self.timeout)
             response.raise_for_status()
             if self.debug:
                 print(f'Response: {response.json()}')
@@ -227,7 +227,7 @@ class RobotAPI:
             url = self.prefix + f'/open-rmf/office_demos_fm/status/'
         else:
             url = self.prefix +\
-                f'/open-rmf/office_demos_fm/status?robot_name={robot_name}'
+                f'/open-rmf/office_demos_fm/status/?robot_name={robot_name}'
         try:
             response = requests.get(url, timeout=self.timeout)
             response.raise_for_status()

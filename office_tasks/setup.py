@@ -1,4 +1,4 @@
-﻿"""A set of scripts to issue tasks to upstream Office runtime from the command line."""
+"""A set of scripts to issue tasks to upstream Office runtime from the command line."""
 from setuptools import setup
 
 package_name = 'office_tasks'

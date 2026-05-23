@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-exec /mnt/e/Robotic/course_robot_ws/src/Robotics_export/tools/run_office_gui_delivery_wsl.sh "$@"
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+exec "$PROJECT_ROOT/tools/run_office_gui_delivery_wsl.sh" "$@"

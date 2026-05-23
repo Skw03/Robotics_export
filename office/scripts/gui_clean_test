@@ -2,4 +2,4 @@
 set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-exec "$PROJECT_ROOT/tools/run_office_gui_patrol_wsl.sh" "$@"
+exec "$PROJECT_ROOT/tools/run_office_gui_clean_wsl.sh" "$@"

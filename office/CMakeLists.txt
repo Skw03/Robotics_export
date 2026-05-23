@@ -11,8 +11,14 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/dispatch_delivery
   scripts/dispatch_patrol
+  scripts/dispatch_clean
   scripts/gui_delivery_test
   scripts/gui_patrol_test
+  scripts/gui_clean_test
+  scripts/office_status
+  scripts/office_llm_command.py
+  scripts/office_synthetic_lidar.py
+  scripts/office_scan_mapper.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -16,6 +16,48 @@ source /opt/ros/humble/setup.bash
 source install/local_setup.bash
 set -u
 
+check_office_deps() {
+  REQUIRED_PACKAGES=(
+    rmf_task_msgs
+    rmf_fleet_msgs
+    rmf_dispenser_msgs
+    rmf_traffic_ros2
+    rmf_task_ros2
+    rmf_fleet_adapter
+    rmf_fleet_adapter_python
+    rmf_building_map_tools
+    rmf_visualization
+    rmf_visualization_schedule
+    rmf_lift_msgs
+    ros_gz_sim
+    ros_gz_bridge
+    rmf_building_sim_gz_plugins
+    rmf_robot_sim_gz_plugins
+    teleop_twist_keyboard
+    rviz2
+    office
+    office_gz
+    office_demos
+    office_maps
+    office_assets
+    office_fleet_adapter
+    office_tasks
+  )
+  MISSING_PACKAGES=()
+  for package in "${REQUIRED_PACKAGES[@]}"; do
+    if ! ros2 pkg prefix "$package" >/dev/null 2>&1; then
+      MISSING_PACKAGES+=("$package")
+    fi
+  done
+  if [[ "${#MISSING_PACKAGES[@]}" -gt 0 ]]; then
+    echo "Missing Office runtime packages:" >&2
+    printf '  - %s\n' "${MISSING_PACKAGES[@]}" >&2
+    exit 3
+  fi
+}
+
+check_office_deps
+
 mkdir -p "$OUTPUT_DIR/logs"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 LAUNCH_LOG="$OUTPUT_DIR/logs/office_gui_patrol_launch_${STAMP}.log"
