@@ -1,0 +1,11 @@
+trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,route,error,notes
+1,office,delivery,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,50.992,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+2,office,delivery,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,0.101,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+3,office,delivery,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,0.101,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+4,office,delivery,navfn_astar,collision_monitor,True,TIMEOUT,TIMEOUT,120.002,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+5,office,delivery,navfn_astar,collision_monitor,True,FAILED,FAILED,87.342,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+1,office,patrol,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,7.116,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+2,office,patrol,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,0.102,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+3,office,patrol,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,0.102,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+4,office,patrol,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,0.831,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor
+5,office,patrol,navfn_astar,collision_monitor,True,SUCCEEDED,COMPLETED,1.171,charger -> patrol_a1,,stage2 single-world two-task matrix navfn_astar_collision_monitor

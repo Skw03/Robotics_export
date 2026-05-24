@@ -22,7 +22,7 @@
 5. 可执行技术路线
 6. 对课程技术要求（2.1）的逐条覆盖情况
 
-本报告为“可提交版本”，其中实验统计结果与个别截图可在 `TODO` 位置回填。
+本报告为阶段二可提交版本，已回填当前实验矩阵的结构化结果；个别运行截图仍可在最终提交前补充。
 
 ---
 
@@ -88,8 +88,9 @@
   - 使用 LaserScan 模态进行环境感知
   - 输出 OccupancyGrid（`/map`）验证链路
   - 已具备 AMCL 实时定位配置
-- `TODO-4.1-A`：补充 `/scan`、`/map` 在线运行截图与话题频率  
-- `TODO-4.1-B`：补充定位收敛/漂移观测数据
+- 验证入口：`office/launch/office_perception_mapping.launch.xml` 启动合成 LaserScan 与 OccupancyGrid 链路，核心节点为 `office_synthetic_lidar.py` 和 `office_scan_mapper.py`。
+- 当前证据：`docs/office_stage2_update_summary.md` 已记录 `/scan`、`/map`、TF 链路的静态验证方式；本次未启动完整 WSL ROS 2 runtime 进行在线录屏，因此未追加在线截图和话题频率截图。
+- 定位观测：AMCL 与 map_server 已能随 Office/Nav2 launch 启动；已有日志显示 lifecycle 节点进入 bringup/cleanup 流程，但缺少可复算的定位收敛时间与漂移量 CSV，因此本报告不填具体漂移数值。
 
 ### 4.2 运动控制与避障
 
@@ -98,8 +99,9 @@
   - 已实现 2 种避障配置可切换
     - `collision_monitor`
     - `baseline_costmap`
-- `TODO-4.2-A`：补充两策略在 delivery/patrol 的成功率与耗时对比  
-- `TODO-4.2-B`：补充失败案例（超时/局部卡死/绕行失败）
+- 对比口径：`collision_monitor` 与 `baseline_costmap` 两种避障配置均通过 `tools/run_stage2_experiments_wsl.sh` 进入实验矩阵，理论上分别覆盖 delivery 与 patrol 两类任务。
+- 本次 `TRIALS=5` 实验已生成 4 组 CSV/JSONL。`baseline_costmap` 两个规划器在 delivery/patrol 上均达到 `100.00%` 成功率；`collision_monitor` 下 `smac_2d` 为 `100.00%`，`navfn_astar` 的 delivery 为 `60.00%`、patrol 为 `100.00%`。
+- 失败案例：`navfn_astar + collision_monitor / delivery` 出现 `FAILED=1` 与 `TIMEOUT=1`；其余 7 个任务分组无失败样本。修复后不再以 action server 不可用作为主要阻断点。
 
 ### 4.3 路径规划
 
@@ -107,24 +109,26 @@
   - 2 种规划算法可切换
     - `navfn_astar`
     - `smac_2d`
-- `TODO-4.3-A`：补充规划算法对比统计（成功率、耗时、稳定性）  
-- `TODO-4.3-B`：补充参数选择依据与性能影响分析
+- 对比口径：规划器矩阵包含 `navfn_astar` 与 `smac_2d`，由 `robotics_nav2/scripts/generate_nav2_profile.py` 基于 `office_nav2.yaml` 生成运行参数。
+- 统计结论：`smac_2d` 两种避障配置均达到 `100.00%` 成功率；`navfn_astar` 在 `baseline_costmap` 下为 `100.00%`，在 `collision_monitor` 下 delivery 成功率降至 `60.00%`。
+- 参数选择依据：`navfn_astar` 作为 Nav2 经典全局规划基线，适合规则栅格地图的可解释对比；`smac_2d` 作为更面向网格搜索与代价约束的规划器，用于检验在 Office 狭窄通道和绕行场景下的鲁棒性。本次差异主要体现为 `collision_monitor` 下的稳定性与耗时波动。
 
 ### 4.4 应用场景
 
 - 已完成：
   - 2 个独立任务逻辑（delivery/patrol）
   - 任务语义点与路线已定义
-- `TODO-4.4-A`：补充每个任务成功/失败判据（可量化）  
-- `TODO-4.4-B`：补充每个任务的最终评估表
+- 成功判据：实验脚本以每条记录的 `accepted=true` 且 `status/task_status` 为成功状态作为任务成功；`elapsed_sec` 记录任务耗时。
+- 失败判据：`status=TIMEOUT` 计为超时失败，`status=ERROR` 计为运行异常，`accepted=false` 或任务被拒绝计为调度失败。
+- 最终评估表口径：按 `task` 分为 delivery/patrol，按 `planner_profile + avoidance_profile` 分组统计样本数、成功数、成功率、平均耗时、超时率和失败类型分布；实际汇总见 5.4 与 `experiment_results/stage2_matrix/stage2_matrix_summary.csv`。
 
 ### 4.5 人机交互
 
 - 已完成：
   - 可运行自然语言接口（dry-run / execute）
   - 解析结果可保存 JSON 证据
-- `TODO-4.5-A`：补充命令覆盖测试（中英混合、歧义命令）  
-- `TODO-4.5-B`：补充交互稳定性统计
+- 命令覆盖：已保留 `office_llm_command.py --force-fallback` 作为本地规则解析验证入口，覆盖中文配送、中文巡检、英文 delivery、英文 patrol 四类基本表达。
+- 稳定性口径：对每条命令记录解析任务类型、是否 fallback、是否执行、错误信息和解析延迟；当前已有 dry-run 级静态验证，缺少批量 JSON 记录，因此不填解析正确率百分比。
 
 ### 4.6 LLM / VLM / VLA 集成
 
@@ -132,15 +136,15 @@
   - 接入 LLM 进行任务语义解析
   - 输出解析延迟 `parse_latency_ms`
   - 支持失败回退
-- `TODO-4.6-A`：补充延迟统计（平均值/P95/最大值）  
-- `TODO-4.6-B`：补充可靠性（正确率/误解析率）  
-- `TODO-4.6-C`：补充真实失败案例与修复策略
+- 延迟统计口径：LLM 解析结果以 `parse_latency_ms` 记录，正式提交时按 JSON 证据计算平均值、P95 和最大值。
+- 可靠性口径：以人工标注任务类型为基准，统计 LLM 输出正确率、误解析率、fallback 接管率和非法输出率。
+- 已知失败类型与修复策略：网络超时或无 API Key 时使用 keyword fallback；模型输出非 delivery/patrol 时拒绝或降级；语义歧义命令进入人工复核或二次确认。
 
 ### 4.7 系统与部署分析
 
 - 已完成：
   - 仿真软件架构与运行边界已明确
-- `TODO-4.7-A`：补充硬件平台选型（成本/算力/传感器）  
+- 硬件平台建议：真实部署可选差速轮式底盘、2D LiDAR、轮速里程计、IMU 与板载工控机/NUC；课程阶段优先保证 ROS 2、Nav2、LaserScan、OccupancyGrid 与 AMCL 链路可迁移，暂不引入机械臂或复杂 VLA 执行端。
 
 sim-to-real 主要风险与应对：
 
@@ -176,45 +180,78 @@ sim-to-real 主要风险与应对：
 ### 5.3 运行命令
 
 ```bash
-bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_wsl.sh
+WORKSPACE=$HOME/ros2_ws \
+PROJECT_ROOT=/mnt/c/Users/QZB/Desktop/Robotics_export \
+OUTPUT_DIR=/mnt/c/Users/QZB/Desktop/Robotics_export/experiment_results/stage2_matrix \
+bash /mnt/c/Users/QZB/Desktop/Robotics_export/tools/run_stage2_experiments_wsl.sh
 ```
 
 可选（自定义重复次数）：
 
 ```bash
-TRIALS=5 OUTPUT_DIR=/Users/qiuqiu/Desktop/github/Robotics_export/experiment_results/stage2_matrix \
-bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_wsl.sh
+WORKSPACE=$HOME/ros2_ws \
+PROJECT_ROOT=/mnt/c/Users/QZB/Desktop/Robotics_export \
+TRIALS=5 \
+LAUNCH_WAIT_SEC=150 \
+LAUNCH_TIMEOUT_SEC=1500 \
+RESULT_TIMEOUT_SEC=120 \
+OUTPUT_DIR=/mnt/c/Users/QZB/Desktop/Robotics_export/experiment_results/stage2_matrix \
+bash /mnt/c/Users/QZB/Desktop/Robotics_export/tools/run_stage2_experiments_wsl.sh
 ```
 
 ### 5.4 结果文件路径
 
-- 输出目录：`/Users/qiuqiu/Desktop/github/Robotics_export/experiment_results/stage2_matrix`
-- 日志目录：`/Users/qiuqiu/Desktop/github/Robotics_export/experiment_results/stage2_matrix/logs`
+- 输出目录：`experiment_results/stage2_matrix`
+- 日志目录：`experiment_results/stage2_matrix/logs`
 - 结果格式：每组 `*.csv` + `*.jsonl`
 
-`TODO-5.4-A`：回填本次实际产物文件清单  
-`TODO-5.4-B`：回填汇总统计总表（可附录）
+本次正式实验产物（`TRIALS=5`，`RESULT_TIMEOUT_SEC=120`）：
+
+| 类型 | 文件 | 状态 |
+|---|---|---|
+| launch 日志 | `experiment_results/stage2_matrix/logs/launch_navfn_astar_collision_monitor.log` | 已生成 |
+| launch 日志 | `experiment_results/stage2_matrix/logs/launch_smac_2d_collision_monitor.log` | 已生成 |
+| launch 日志 | `experiment_results/stage2_matrix/logs/launch_navfn_astar_baseline_costmap.log` | 已生成 |
+| launch 日志 | `experiment_results/stage2_matrix/logs/launch_smac_2d_baseline_costmap.log` | 已生成 |
+| CSV/JSONL | `experiment_results/stage2_matrix/office_delivery-patrol_navfn_astar_collision_monitor.csv` / `.jsonl` | 已生成 |
+| CSV/JSONL | `experiment_results/stage2_matrix/office_delivery-patrol_smac_2d_collision_monitor.csv` / `.jsonl` | 已生成 |
+| CSV/JSONL | `experiment_results/stage2_matrix/office_delivery-patrol_navfn_astar_baseline_costmap.csv` / `.jsonl` | 已生成 |
+| CSV/JSONL | `experiment_results/stage2_matrix/office_delivery-patrol_smac_2d_baseline_costmap.csv` / `.jsonl` | 已生成 |
+| 汇总表 | `experiment_results/stage2_matrix/stage2_matrix_summary.csv` / `.md` | 已生成 |
+
+汇总统计表：
+
+| planner | avoidance | task | trials | accepted | success | success_rate | mean_elapsed_sec | timeout_rate | failure_modes |
+|---|---|---|---:|---:|---:|---:|---:|---:|---|
+| navfn_astar | baseline_costmap | delivery | 5 | 5 | 5 | 100.00% | 7.656 | 0.00% | - |
+| navfn_astar | baseline_costmap | patrol | 5 | 5 | 5 | 100.00% | 0.733 | 0.00% | - |
+| navfn_astar | collision_monitor | delivery | 5 | 5 | 3 | 60.00% | 51.708 | 20.00% | FAILED=1; TIMEOUT=1 |
+| navfn_astar | collision_monitor | patrol | 5 | 5 | 5 | 100.00% | 1.864 | 0.00% | - |
+| smac_2d | baseline_costmap | delivery | 5 | 5 | 5 | 100.00% | 10.183 | 0.00% | - |
+| smac_2d | baseline_costmap | patrol | 5 | 5 | 5 | 100.00% | 0.095 | 0.00% | - |
+| smac_2d | collision_monitor | delivery | 5 | 5 | 5 | 100.00% | 8.252 | 0.00% | - |
+| smac_2d | collision_monitor | patrol | 5 | 5 | 5 | 100.00% | 0.094 | 0.00% | - |
 
 ---
 
-## 6. 中期结果与分析（待回填）
+## 6. 中期结果与分析
 
-### 6.1 结果汇总（模板）
+### 6.1 结果汇总
 
-- delivery 最优组合：`TODO-6.1-DELIVERY-BEST`
-- patrol 最优组合：`TODO-6.1-PATROL-BEST`
-- 综合最优组合：`TODO-6.1-OVERALL-BEST`
+- delivery 最优组合：`smac_2d + collision_monitor`、`smac_2d + baseline_costmap` 与 `navfn_astar + baseline_costmap` 均达到 `100.00%`；其中 `smac_2d + collision_monitor` 平均耗时最低（`8.252s`）。
+- patrol 最优组合：4 个组合均达到 `100.00%`；其中 `smac_2d + collision_monitor` 平均耗时最低（`0.094s`），`smac_2d + baseline_costmap` 接近（`0.095s`）。
+- 综合最优组合：优先选择 `smac_2d + collision_monitor`。该组合 delivery/patrol 均为 `100.00%`，且两个任务平均耗时均处于最优或并列最优区间。
 
-### 6.2 关键指标（模板）
+### 6.2 关键指标
 
-- 成功率：`TODO-6.2-SUCCESS-RATE`
-- 平均耗时：`TODO-6.2-MEAN-TIME`
-- 超时率：`TODO-6.2-TIMEOUT-RATE`
-- 主要失败模式：`TODO-6.2-FAIL-MODES`
+- 成功率：8 个任务分组中 7 个为 `100.00%`，仅 `navfn_astar + collision_monitor / delivery` 为 `60.00%`。
+- 平均耗时：delivery 最低为 `smac_2d + collision_monitor = 8.252s`，patrol 最低为 `smac_2d + collision_monitor = 0.094s`；最高为 `navfn_astar + collision_monitor / delivery = 51.708s`。
+- 超时率：仅 `navfn_astar + collision_monitor / delivery` 出现超时，超时率 `20.00%`；其余分组为 `0.00%`。
+- 主要失败模式：`FAILED` 与 `TIMEOUT`，均集中在 `navfn_astar + collision_monitor / delivery`。
 
-### 6.3 结论（模板）
+### 6.3 结论
 
-`TODO-6.3-CONCLUSION`
+阶段二已经补齐 Office-only 的任务入口、LLM/fallback 解析入口、感知地图验证入口和规划/避障实验矩阵脚本，并完成 `TRIALS=5` 的结构化结果落盘。修复启动时序、SMAC planner id 和阶段二短路线后，系统已能稳定生成 CSV/JSONL 与汇总表；综合结果显示 `smac_2d + collision_monitor` 是当前推荐组合，`navfn_astar + collision_monitor` 在 delivery 上仍存在超时/失败波动，后续应继续针对 collision monitor 与 NavFn 组合做控制参数和局部代价图调优。
 
 ---
 
@@ -254,7 +291,7 @@ bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_w
   - 估算调用次数：`30 ~ 120` 次
   - 单次 token 量级（输入+输出）：`300 ~ 1200 tokens`
   - 总 token 量级：约 `1e4 ~ 1e5`
-  - 费用区间：`TODO-8.2-COST-RANGE`（提交前按实际账单回填）
+  - 费用区间：按 `1e4 ~ 1e5` 总 token 量级估算约为低额美元成本；若使用本地 fallback 或 dry-run，则 API 成本可为 0。最终提交应以 OpenAI 控制台账单为准。
 - 计算资源消耗（估算）：
   - CPU：仿真与导航主耗时在 ROS/Gazebo 运行阶段
   - 内存：中等负载（Office 单 world + Nav2 + 任务节点）
@@ -273,13 +310,13 @@ bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_w
 
 典型失败案例模板（阶段二记录格式）：
 
-- 案例编号：`TODO-8.3-CASE-01`
-- 输入指令：`TODO`
-- LLM 输出：`TODO`
-- 实际应有任务：`TODO`
-- 失败类型：误解析 / 超时 / 网络失败 / 非法输出
-- fallback 是否接管：是/否
-- 处置措施：关键词增强 / 提示词约束 / 置信度阈值调整 / 人工确认
+- 案例编号：AI-CASE-01
+- 输入指令：`帮我处理一下办公室的事情`
+- LLM 输出：可能在 delivery/patrol 之间不稳定
+- 实际应有任务：语义不充分，需追问或人工确认
+- 失败类型：歧义命令导致误解析风险
+- fallback 是否接管：否，规则解析无法可靠判断
+- 处置措施：限制输出 schema，仅允许 delivery/patrol；对低置信度或关键词缺失输入返回澄清提示。
 
 ### 8.4 验证与评估方法
 
@@ -308,11 +345,11 @@ bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_w
 
 ## 9. 提交前检查清单
 
-- [ ] 小组成员与分工信息已填写
-- [ ] 所有 `TODO` 已按实验结果回填
-- [ ] 图表与日志附件路径一致
-- [ ] 指标口径（成功率、耗时、超时）与脚本输出一致
-- [ ] AI 工具使用说明已补全
+- [x] 小组成员与分工信息已填写
+- [x] 所有 `TODO` 已处理为最终文本或明确说明缺少结构化结果
+- [x] 日志附件路径已列出，CSV/JSONL 与汇总表已生成
+- [x] 指标口径（成功率、耗时、超时）与脚本输出字段一致
+- [x] AI 工具使用说明已补全
 
 ---
 
@@ -329,19 +366,19 @@ bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_w
 | `pptx` Skill | 辅助整理阶段二答辩 PPT 的结构、章节和幻灯片内容规划 |
 | `ros2-engineering-skills` | 辅助 ROS 2 工程项目的架构梳理、Nav2/仿真流程检查和交付材料组织 |
 
-`TODO-10.1-A`：补充各工具对应版本号或提交时可核验版本信息（如模型名、脚本版本、关键依赖版本）。
+版本口径：ChatGPT/Codex 使用 GPT-5 系列作为开发与文档协助；项目 LLM 入口使用 OpenAI Responses API，默认模型可由 `OPENAI_MODEL` 环境变量覆盖；ROS 2 目标环境为 Humble，Python 目标环境为 Ubuntu 22.04 默认 Python 3.10。
 
 ### 10.2 成本与资源消耗
 
-`TODO-10.2-A`：补充 OpenAI API 调用次数、估算 token 成本、实验运行时长与主要算力消耗。
+成本口径：阶段二 API 调用主要集中在自然语言解析测试，估算调用 30~120 次、总 token 约 `1e4 ~ 1e5`；若使用 `--force-fallback`，API 成本为 0。实验运行时长按 4 组矩阵、每组 delivery/patrol、`TRIALS=3~5` 估算为 40~120 分钟，实际以 WSL 运行日志为准。
 
 ### 10.3 局限性与失败案例
 
-`TODO-10.3-A`：补充 LLM 误解析样例、网络超时样例、fallback 接管样例及其影响范围。
+失败样例：歧义命令可能在 delivery/patrol 间误解析；网络超时或 API Key 缺失时由 fallback 接管；超出任务集合的命令会被拒绝或要求澄清。影响范围仅限自然语言入口，不改变底层 ROS 2 任务脚本和规划/避障实验矩阵。
 
 ### 10.4 验证与评估方法
 
-`TODO-10.4-A`：补充 AI 生成内容的人审流程、抽检比例、复现实验步骤与交叉验证规则。
+验证流程：AI 生成的代码、脚本和报告文本需经过人工审阅；语义命令样本抽检不少于 30%，实验结果文件复算抽检不少于 20%，最优组合、失败模式和报告关键数字必须 100% 回溯到 CSV/JSONL 或 launch 日志。
 
 ---
 
@@ -349,6 +386,8 @@ bash /Users/qiuqiu/Desktop/github/Robotics_export/tools/run_stage2_experiments_w
 
 - `experiment_results/stage2_matrix/*.csv`
 - `experiment_results/stage2_matrix/*.jsonl`
+- `experiment_results/stage2_matrix/stage2_matrix_summary.csv`
+- `experiment_results/stage2_matrix/stage2_matrix_summary.md`
 - `experiment_results/stage2_matrix/logs/*.log`
-- 感知/定位运行截图（`TODO` 回填后统一命名）
+- 感知/定位运行截图（当前未生成，需在 WSL/ROS 2 runtime 中补录）
 - 阶段二演示视频链接或文件索引

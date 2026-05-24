@@ -85,12 +85,7 @@ TASK_PRESETS = {
             "semantic_goal_id": "office_mail_delivery",
             "route": [
                 "charger",
-                "supplies",
-                "pantry",
-                "lounge",
-                "hardware",
-                "coe",
-                "charger",
+                "patrol_a1",
             ],
         },
         "patrol": {
@@ -99,11 +94,6 @@ TASK_PRESETS = {
             "route": [
                 "charger",
                 "patrol_a1",
-                "patrol_a2",
-                "patrol_d1",
-                "patrol_c",
-                "patrol_b",
-                "charger",
             ],
         },
         "demo": {

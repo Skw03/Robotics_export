@@ -16,7 +16,21 @@ def parse_args():
 def replace_planner_profile(text: str, planner_profile: str) -> str:
     if planner_profile == "navfn_astar":
         return text.replace('planner_plugins: ["GridBased", "Smac2D"]', 'planner_plugins: ["GridBased"]')
-    return text.replace('planner_plugins: ["GridBased", "Smac2D"]', 'planner_plugins: ["Smac2D"]')
+    text = text.replace('planner_plugins: ["GridBased", "Smac2D"]', 'planner_plugins: ["GridBased"]')
+    return text.replace(
+        '    GridBased:\n'
+        '      plugin: "nav2_navfn_planner/NavfnPlanner"\n'
+        '      tolerance: 0.20\n'
+        '      use_astar: true\n'
+        '      allow_unknown: true\n',
+        '    GridBased:\n'
+        '      plugin: "nav2_smac_planner/SmacPlanner2D"\n'
+        '      tolerance: 0.15\n'
+        '      downsample_costmap: false\n'
+        '      allow_unknown: true\n'
+        '      max_iterations: 100000\n'
+        '      max_on_approach_iterations: 1000\n',
+    )
 
 
 def replace_avoidance_profile(text: str, avoidance_profile: str) -> str:

@@ -1,0 +1,11 @@
+trial,scene,task,planner_profile,avoidance_profile,accepted,status,task_status,elapsed_sec,route,error,notes
+1,office,delivery,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,50.021,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+2,office,delivery,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.622,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+3,office,delivery,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.091,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+4,office,delivery,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.091,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+5,office,delivery,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.091,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+1,office,patrol,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.108,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+2,office,patrol,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.092,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+3,office,patrol,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.091,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+4,office,patrol,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.093,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
+5,office,patrol,smac_2d,baseline_costmap,True,SUCCEEDED,COMPLETED,0.092,charger -> patrol_a1,,stage2 single-world two-task matrix smac_2d_baseline_costmap
