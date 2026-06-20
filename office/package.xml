@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>office</name>
+  <version>0.3.0</version>
+  <description>Office-only stage-2 launch, task, LLM, status, perception, mapping, dynamic obstacle avoidance, and task scheduling.</description>
+
+  <maintainer email="msd030428@gmail.com">KDW</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>office_gz</exec_depend>
+  <exec_depend>office_tasks</exec_depend>
+  <exec_depend>office_maps</exec_depend>
+  <exec_depend>office_fleet_adapter</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>rmf_fleet_msgs</exec_depend>
+  <exec_depend>rmf_task_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

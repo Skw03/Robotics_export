@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+has_clean_start=false
+has_fleet=false
+has_robot=false
+has_trash_room=false
+has_charger=false
+
+for arg in "$@"; do
+  case "$arg" in
+    -cs|--clean_start) has_clean_start=true ;;
+    -F|--fleet) has_fleet=true ;;
+    -R|--robot) has_robot=true ;;
+    --trash-room) has_trash_room=true ;;
+    --charger) has_charger=true ;;
+  esac
+done
+
+if [[ "$has_clean_start" == false ]]; then
+  set -- "$@" -cs lounge
+fi
+
+if [[ "$has_fleet" == false && "$has_robot" == false ]]; then
+  set -- "$@" -F tinyRobot -R tinyRobot1
+fi
+
+if [[ "$has_trash_room" == false ]]; then
+  set -- "$@" --trash-room trash_room --trash-via corridor_to_trash
+fi
+
+if [[ "$has_charger" == false ]]; then
+  set -- "$@" --charger tinyRobot1_charger
+fi
+
+exec ros2 run office_tasks dispatch_clean "$@"

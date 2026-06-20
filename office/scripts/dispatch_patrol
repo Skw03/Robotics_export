@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+has_places=false
+for arg in "$@"; do
+  if [[ "$arg" == "-p" || "$arg" == "--places" ]]; then
+    has_places=true
+    break
+  fi
+done
+
+if [[ "$has_places" == false ]]; then
+  set -- "$@" \
+    -p patrol_A1 patrol_B patrol_C patrol_D1
+fi
+
+has_rounds=false
+for arg in "$@"; do
+  case "$arg" in
+    -n|--rounds) has_rounds=true ;;
+  esac
+done
+
+if [[ "$has_rounds" == false ]]; then
+  set -- "$@" -n 3
+fi
+
+exec ros2 run office_tasks dispatch_patrol "$@"

@@ -1,0 +1,62 @@
+# Robotics Export Configuration
+# ==========================================
+# LLM, task scheduler, and dynamic obstacle avoidance settings.
+# Environment variables take precedence over values defined here.
+
+[llm]
+# Provider: "openai", "openai_compat", or "mock".
+# - openai:        OpenAI Responses API (/responses endpoint, json_schema structured output)
+# - openai_compat: OpenAI-compatible Chat Completions API (/chat/completions endpoint)
+#                  Works with 智谱, DeepSeek, Moonshot, etc.
+# - mock:          No API call, keyword-based selection with mock confidence
+# If api_key is empty, "mock" is used automatically regardless of this setting.
+# provider = "openai"
+# api_key = ""            # prefer LLM_API_KEY or OPENAI_API_KEY env var; leave empty to disable
+# model = "gpt-4o-mini"  # prefer LLM_MODEL or OPENAI_MODEL env var
+# base_url = "https://api.openai.com/v1"  # prefer LLM_BASE_URL or OPENAI_BASE_URL env var
+timeout_sec = 20
+
+# Example: 智谱 (ZhiPu/GLM)
+provider = "openai_compat"
+model = "glm-4.5-air"
+base_url = "https://open.bigmodel.cn/api/paas/v4"
+api_key = "a6d3807a512f45d5a0cb72ee24e1575c.M0xb5BtGD26rOqLK"
+
+# Example: DeepSeek
+# provider = "openai_compat"
+# model = "deepseek-chat"
+# base_url = "https://api.deepseek.com/v1"
+# api_key = "your-deepseek-api-key"
+
+# Example: Moonshot (Kimi)
+# provider = "openai_compat"
+# model = "moonshot-v1-8k"
+# base_url = "https://api.moonshot.cn/v1"
+# api_key = "your-moonshot-api-key"
+
+[llm.mock]
+# Mock mode: returns deterministic results for testing without an API key.
+default_task = "patrol"
+default_confidence = 0.80
+
+[scheduler]
+# Task scheduler: route optimization for multi-task dispatch.
+strategy = "nearest_neighbor"   # nearest_neighbor | greedy_tsp
+robot_name = "tinyRobot1"
+fleet_name = "tinyRobot"
+default_charger = "tinyRobot1_charger"
+
+[obstacle_avoidance]
+# Dynamic obstacle avoidance via /scan analysis.
+enabled = true
+scan_topic = "/scan"
+robot_state_topic = "robot_state"
+robot_name = "tinyRobot1"
+# Minimum range (m) at which a dynamic obstacle is considered close.
+obstacle_range_threshold = 1.5
+# Number of consecutive close-range detections before triggering avoidance.
+confirm_count = 3
+# Speed multiplier when obstacle is detected (0.0 = stop, 1.0 = no change).
+slowdown_factor = 0.3
+# Replan cooldown (seconds) to avoid flooding RMF.
+replan_cooldown_sec = 10.0

@@ -16,8 +16,24 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Run repeated preset course tasks and record metrics for planner and avoidance comparisons."
     )
-    parser.add_argument("--scene", choices=["warehouse", "office"], required=True)
-    parser.add_argument("--task", choices=["delivery", "patrol", "demo"], required=True)
+    parser.add_argument(
+        "--scene",
+        choices=["office"],
+        default="office",
+        help="Single active world for stage-2 experiments.",
+    )
+    parser.add_argument(
+        "--task",
+        choices=["delivery", "patrol", "demo"],
+        help="Run one task only (legacy option).",
+    )
+    parser.add_argument(
+        "--tasks",
+        nargs="+",
+        choices=["delivery", "patrol", "demo"],
+        default=["delivery", "patrol"],
+        help="One or more tasks to run sequentially. Default: delivery patrol",
+    )
     parser.add_argument("--trials", type=int, default=3)
     parser.add_argument("--planner-profile", choices=["configured", "navfn_astar", "smac_2d"], default="configured")
     parser.add_argument(
@@ -28,7 +44,6 @@ def parse_args():
     parser.add_argument("--output-dir", default="experiment_results")
     parser.add_argument("--notes", default="")
     parser.add_argument("--result-timeout", type=float, default=180.0)
-    parser.add_argument("--near-collision-threshold", type=float, default=0.25)
     return parser.parse_args()
 
 
@@ -51,10 +66,6 @@ def write_outputs(records: List[Dict[str, object]], output_dir: pathlib.Path, st
         "status",
         "task_status",
         "elapsed_sec",
-        "path_length_m",
-        "min_obstacle_dist_m",
-        "near_collision_events",
-        "near_collision_threshold_m",
         "route",
         "error",
         "notes",
@@ -71,68 +82,56 @@ def write_outputs(records: List[Dict[str, object]], output_dir: pathlib.Path, st
 def main():
     args = parse_args()
     records: List[Dict[str, object]] = []
+    selected_tasks = [args.task] if args.task else list(args.tasks)
     rclpy.init()
     node = TaskDispatchNode()
     try:
-        for trial in range(1, args.trials + 1):
-            started_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-            try:
-                result = node.dispatch(
-                    args.scene,
-                    args.task,
-                    result_timeout_sec=args.result_timeout,
-                    collect_metrics=True,
-                    near_collision_threshold_m=args.near_collision_threshold,
-                )
-                payload = json.loads(dump_result(result))
-                task_spec = payload.get("task_spec", {})
-                metrics = task_spec.get("metrics", {})
-                record: Dict[str, object] = {
-                    "trial": trial,
-                    "started_at": started_at,
-                    "scene": args.scene,
-                    "task": args.task,
-                    "planner_profile": args.planner_profile,
-                    "avoidance_profile": args.avoidance_profile,
-                    "accepted": payload.get("accepted", False),
-                    "status": payload.get("status", ""),
-                    "task_status": payload.get("task_status", ""),
-                    "elapsed_sec": payload.get("elapsed_sec", 0.0),
-                    "path_length_m": metrics.get("path_length_m", 0.0),
-                    "min_obstacle_dist_m": metrics.get("min_obstacle_dist_m", -1.0),
-                    "near_collision_events": metrics.get("near_collision_events", 0),
-                    "near_collision_threshold_m": metrics.get("near_collision_threshold_m", args.near_collision_threshold),
-                    "route": " -> ".join(task_spec.get("route", [])),
-                    "error": "",
-                    "notes": args.notes,
-                }
-            except Exception as exc:
-                record = {
-                    "trial": trial,
-                    "started_at": started_at,
-                    "scene": args.scene,
-                    "task": args.task,
-                    "planner_profile": args.planner_profile,
-                    "avoidance_profile": args.avoidance_profile,
-                    "accepted": False,
-                    "status": "ERROR",
-                    "task_status": "ERROR",
-                    "elapsed_sec": 0.0,
-                    "path_length_m": 0.0,
-                    "min_obstacle_dist_m": -1.0,
-                    "near_collision_events": 0,
-                    "near_collision_threshold_m": args.near_collision_threshold,
-                    "route": "",
-                    "error": f"{type(exc).__name__}: {exc}",
-                    "notes": args.notes,
-                }
-            records.append(record)
-            print(json.dumps(record, ensure_ascii=False))
+        for task_name in selected_tasks:
+            for trial in range(1, args.trials + 1):
+                started_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+                try:
+                    result = node.dispatch(args.scene, task_name, result_timeout_sec=args.result_timeout)
+                    payload = json.loads(dump_result(result))
+                    task_spec = payload.get("task_spec", {})
+                    record: Dict[str, object] = {
+                        "trial": trial,
+                        "started_at": started_at,
+                        "scene": args.scene,
+                        "task": task_name,
+                        "planner_profile": args.planner_profile,
+                        "avoidance_profile": args.avoidance_profile,
+                        "accepted": payload.get("accepted", False),
+                        "status": payload.get("status", ""),
+                        "task_status": payload.get("task_status", ""),
+                        "elapsed_sec": payload.get("elapsed_sec", 0.0),
+                        "route": " -> ".join(task_spec.get("route", [])),
+                        "error": "",
+                        "notes": args.notes,
+                    }
+                except Exception as exc:
+                    record = {
+                        "trial": trial,
+                        "started_at": started_at,
+                        "scene": args.scene,
+                        "task": task_name,
+                        "planner_profile": args.planner_profile,
+                        "avoidance_profile": args.avoidance_profile,
+                        "accepted": False,
+                        "status": "ERROR",
+                        "task_status": "ERROR",
+                        "elapsed_sec": 0.0,
+                        "route": "",
+                        "error": f"{type(exc).__name__}: {exc}",
+                        "notes": args.notes,
+                    }
+                records.append(record)
+                print(json.dumps(record, ensure_ascii=False))
     finally:
         node.destroy_node()
         rclpy.shutdown()
 
-    stem = f"{args.scene}_{args.task}_{args.planner_profile}_{args.avoidance_profile}"
+    task_tag = "-".join(selected_tasks)
+    stem = f"{args.scene}_{task_tag}_{args.planner_profile}_{args.avoidance_profile}"
     jsonl_path, csv_path = write_outputs(records, pathlib.Path(args.output_dir), stem)
     print(f"Saved JSONL: {jsonl_path}")
     print(f"Saved CSV: {csv_path}")

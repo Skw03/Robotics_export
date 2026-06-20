@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+
+def fetch_status(base_url, robot_name=None, timeout=3.0):
+    url = base_url.rstrip("/") + "/open-rmf/office_demos_fm/status/"
+    if robot_name:
+        url += "?" + urllib.parse.urlencode({"robot_name": robot_name})
+    with urllib.request.urlopen(url, timeout=timeout) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def robot_rows(payload):
+    data = payload.get("data") or {}
+    if "all_robots" in data:
+        return data["all_robots"]
+    return [data] if data else []
+
+
+def format_row(robot):
+    name = robot.get("robot_name", "<unknown>")
+    map_name = robot.get("map_name", "")
+    position = robot.get("position") or {}
+    battery = robot.get("battery", "")
+    last = robot.get("last_completed_request", "")
+    arrival = robot.get("destination_arrival")
+    replan = robot.get("replan", False)
+    destination = "idle"
+    if arrival:
+        destination = f"cmd={arrival.get('cmd_id')} eta={arrival.get('duration')}s"
+    return (
+        f"{name:12} map={map_name:3} "
+        f"x={position.get('x', 0.0):7.2f} "
+        f"y={position.get('y', 0.0):7.2f} "
+        f"yaw={position.get('yaw', 0.0):6.2f} "
+        f"battery={battery!s:>5}% last={last!s:>4} "
+        f"state={destination} replan={replan}"
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Read Office fleet robot status.")
+    parser.add_argument("--base-url", default="http://127.0.0.1:22011")
+    parser.add_argument("--robot")
+    parser.add_argument("--json", action="store_true", help="Print raw JSON response.")
+    parser.add_argument("--watch", type=float, default=0.0, help="Refresh interval in seconds.")
+    parser.add_argument("--timeout", type=float, default=3.0)
+    args = parser.parse_args()
+
+    while True:
+        try:
+            payload = fetch_status(args.base_url, args.robot, args.timeout)
+            if args.json:
+                print(json.dumps(payload, ensure_ascii=False, indent=2))
+            else:
+                if not payload.get("success"):
+                    print(json.dumps(payload, ensure_ascii=False), file=sys.stderr)
+                    return 2
+                print(time.strftime("%Y-%m-%d %H:%M:%S"))
+                for robot in robot_rows(payload):
+                    print(format_row(robot))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            print(f"Unable to read Office status: {exc}", file=sys.stderr)
+            return 1
+
+        if args.watch <= 0:
+            return 0
+        time.sleep(args.watch)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
