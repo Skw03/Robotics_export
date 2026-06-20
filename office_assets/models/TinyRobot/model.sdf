@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 
 <sdf version='1.6'>
   <model name='TinyRobot'>
@@ -15,8 +15,8 @@
       <tire_radius>0.1</tire_radius>
       <base_width>0.3206</base_width>
 
-      <stop_distance>0.75</stop_distance>
-      <stop_radius>0.75</stop_radius>
+      <stop_distance>1.0</stop_distance>
+      <stop_radius>1.0</stop_radius>
 
       <!-- Can the robot drive backwards -->
       <reversible>true</reversible>
@@ -413,6 +413,27 @@
       </axis>
     </joint>
     <static>0</static>
+
+    <sensor name='front_lidar' type='gpu_lidar'>
+      <pose>0.1 0 0.25 0 0 0</pose>
+      <topic>/scan</topic>
+      <update_rate>10</update_rate>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>10.0</max>
+        </range>
+      </lidar>
+      <visualize>true</visualize>
+    </sensor>
 
   </model>
 </sdf>

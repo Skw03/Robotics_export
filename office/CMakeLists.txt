@@ -19,6 +19,9 @@ install(PROGRAMS
   scripts/office_llm_command.py
   scripts/office_synthetic_lidar.py
   scripts/office_scan_mapper.py
+  scripts/office_dynamic_obstacle_avoidance.py
+  scripts/office_task_scheduler.py
+  scripts/office_experiment.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

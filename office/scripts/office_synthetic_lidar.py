@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import argparse
 import math
 from typing import Optional
 
 import rclpy
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rmf_fleet_msgs.msg import RobotState
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import TransformStamped
@@ -12,20 +12,52 @@ from tf2_ros import TransformBroadcaster
 
 
 class OfficeSyntheticLidar(Node):
-    def __init__(self, robot_name: str, rate: float):
+    def __init__(self):
         super().__init__("office_synthetic_lidar")
-        self.robot_name = robot_name
+
+        # Declare parameters (used by launch.xml <param> tags)
+        self.declare_parameter("robot_name", "tinyRobot1")
+        self.declare_parameter("rate", 10.0)
+        # use_sim_time is a built-in ROS 2 parameter — do NOT re-declare it
+
+        use_sim = False
+        try:
+            use_sim = self.get_parameter("use_sim_time").value
+        except Exception:
+            pass
+        if use_sim:
+            self.use_sim_time()
+
+        self.robot_name = self.get_parameter("robot_name").value
+        rate = self.get_parameter("rate").value
+
         self.pose: Optional[RobotState] = None
         self.scan_pub = self.create_publisher(LaserScan, "/scan", 10)
         self.tf = TransformBroadcaster(self)
-        self.create_subscription(RobotState, "robot_state", self._robot_state_cb, 50)
+
+        state_qos = rclpy.qos.QoSProfile(
+            history=rclpy.qos.QoSHistoryPolicy.KEEP_LAST, depth=50,
+            reliability=rclpy.qos.QoSReliabilityPolicy.RELIABLE,
+            durability=rclpy.qos.QoSDurabilityPolicy.VOLATILE,
+        )
+        self.create_subscription(RobotState, "robot_state",
+                                 self._robot_state_cb, state_qos)
+
         self.angle_min = -math.pi
         self.angle_max = math.pi
         self.angle_increment = math.radians(2.0)
         self.range_min = 0.08
         self.range_max = 12.0
-        self.office_walls = [(-1.0, -13.0, 24.0, -13.0), (-1.0, 1.0, 24.0, 1.0), (-1.0, -13.0, -1.0, 1.0), (24.0, -13.0, 24.0, 1.0), (6.5, -13.0, 6.5, -2.0), (13.0, -13.0, 13.0, -2.0), (18.0, -13.0, 18.0, -2.0), (6.5, -2.0, 18.0, -2.0)]
+        self.office_walls = [
+            (-1.0, -13.0, 24.0, -13.0), (-1.0, 1.0, 24.0, 1.0),
+            (-1.0, -13.0, -1.0, 1.0), (24.0, -13.0, 24.0, 1.0),
+            (6.5, -13.0, 6.5, -2.0), (13.0, -13.0, 13.0, -2.0),
+            (18.0, -13.0, 18.0, -2.0), (6.5, -2.0, 18.0, -2.0),
+        ]
         self.create_timer(1.0 / max(rate, 1.0), self._publish)
+        self.get_logger().info(
+            f"Synthetic lidar ready: robot={self.robot_name}, "
+            f"rate={rate}Hz, sim_time={use_sim}")
 
     def _robot_state_cb(self, msg: RobotState):
         if msg.name == self.robot_name:
@@ -103,15 +135,17 @@ class OfficeSyntheticLidar(Node):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--robot-name", default="tinyRobot1")
-    parser.add_argument("--rate", type=float, default=10.0)
-    args = parser.parse_args()
-    rclpy.init()
-    node = OfficeSyntheticLidar(args.robot_name, args.rate)
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.init()
+        node = OfficeSyntheticLidar()
+        rclpy.spin(node)
+        node.destroy_node()
+        rclpy.shutdown()
+    except Exception as e:
+        print(f"[FATAL] Synthetic lidar crashed: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 if __name__ == "__main__":

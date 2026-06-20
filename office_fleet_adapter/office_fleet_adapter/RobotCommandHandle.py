@@ -26,7 +26,7 @@ import rmf_adapter as adpt
 import rmf_adapter.plan as plan
 import rmf_adapter.schedule as schedule
 
-from rmf_fleet_msgs.msg import DockSummary, ModeRequest
+from rmf_fleet_msgs.msg import DockSummary, LaneRequest, ModeRequest
 
 import numpy as np
 
@@ -34,6 +34,7 @@ import threading
 import math
 import enum
 import time
+import os
 
 from datetime import timedelta
 
@@ -120,6 +121,24 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
         self.action_waypoint_index = None
         self.current_cmd_id = 0
         self.started_action = False
+
+        # Auto lane closure for obstacle avoidance
+        self._auto_closed_lanes = {}  # lane_index -> time.time() when closed
+        self._lane_request_pub = self.node.create_publisher(
+            LaneRequest, 'lane_closure_requests',
+            qos_profile=qos_profile_system_default)
+        # Track whether we are waiting for RMF to respond with a new path
+        # after triggering a replan. Prevents repeated replan calls.
+        self._awaiting_rmf_response = False
+        self._awaiting_rmf_since = None  # timestamp when awaiting started
+
+        # File logger for obstacle avoidance diagnostics
+        _log_dir = os.path.join(os.path.expanduser('~'), 'ros_ws',
+                                'experiment_results')
+        os.makedirs(_log_dir, exist_ok=True)
+        self._avoid_log_path = os.path.join(_log_dir, 'avoid_debug.log')
+        self._avoid_log_file = open(self._avoid_log_path, 'a')
+        self._log("[AVOID] ===== RobotCommandHandle initialized =====")
 
         # Threading variables
         self._lock = threading.Lock()
@@ -236,18 +255,170 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
             self._stopping_thread = threading.Thread(target=_stop)
             self._stopping_thread.start()
 
-    def replan(self):
+    def replan(self, close_lane=False):
+        self._log(
+            f"[AVOID] {self.name} replan() called, close_lane={close_lane}, "
+            f"state={self.state}, on_waypoint={self.on_waypoint}, "
+            f"on_lane={self.on_lane}")
+        # Lane closure must happen IMMEDIATELY regardless of cooldown.
+        if close_lane:
+            self._close_blocked_lane()
+
         if self.update_handle is not None:
             now = self.adapter.now()
-            if self.last_replan_time is not None:
-                # TODO(MXG): Make the 15s replan cooldown configurable
-                if now - self.last_replan_time < timedelta(seconds=15.0):
+            # 15-second cooldown for normal replans
+            if self.last_replan_time is not None and not close_lane:
+                elapsed = (now - self.last_replan_time).total_seconds()
+                if elapsed < 15.0:
+                    self._log(
+                        f"[AVOID] {self.name} RMF replan BLOCKED by "
+                        f"cooldown ({elapsed:.1f}s < 15s)")
                     return
             self.last_replan_time = now
+            self._awaiting_rmf_since = now
             self.update_handle.replan()
-            self.node.get_logger().info(
-                f'Requesting replan for {self.name} because of an obstacle'
+            self._awaiting_rmf_response = True
+            self._log(
+                f'[AVOID] {self.name} RMF replan() called successfully, '
+                f'awaiting response')
+        else:
+            self._log(
+                f"[AVOID] {self.name} update_handle is None, cannot replan")
+
+    def _close_blocked_lane(self):
+        """Close the lane that is blocked by an obstacle so RMF can find
+        an alternative route around it."""
+        current_lane = self.get_current_lane()
+        lanes_to_close = []
+
+        self._log(
+            f"[AVOID] {self.name} _close_blocked_lane(): "
+            f"current_lane={current_lane}, "
+            f"target_waypoint={self.target_waypoint}, "
+            f"remaining_wps={len(self.remaining_waypoints)}, "
+            f"tracked_on_lane={self.on_lane}")
+
+        if current_lane is not None:
+            lanes_to_close = [current_lane]
+            self._log(
+                f"[AVOID] {self.name} Using current_lane={current_lane}")
+        elif (self.target_waypoint is not None
+              and self.target_waypoint.approach_lanes):
+            # Robot is on a waypoint, close approach lanes to target
+            lanes_to_close = list(self.target_waypoint.approach_lanes)
+            self._log(
+                f"[AVOID] {self.name} Using approach_lanes="
+                f"{lanes_to_close} (on waypoint)")
+        elif self.on_lane is not None:
+            # Fallback: use the lane tracked by the state machine.
+            # This handles cases where get_current_lane() projection fails
+            # (robot at a waypoint) and the target PlanWaypoint has no
+            # approach_lanes populated.
+            lanes_to_close = [self.on_lane]
+            self._log(
+                f"[AVOID] {self.name} Using tracked on_lane="
+                f"{self.on_lane} (fallback)")
+        else:
+            self._log(
+                f"[AVOID] {self.name} No lane info available anywhere")
+            return
+
+        if not lanes_to_close:
+            self._log(
+                f"[AVOID] {self.name} Cannot determine blocked lane")
+            return
+
+        # Only close lanes that aren't already auto-closed
+        new_closures = []
+        for lane_idx in lanes_to_close:
+            if lane_idx not in self._auto_closed_lanes:
+                new_closures.append(lane_idx)
+                self._auto_closed_lanes[lane_idx] = time.time()
+
+        if new_closures:
+            msg = LaneRequest()
+            msg.fleet_name = self.fleet_name
+            msg.close_lanes = new_closures
+            msg.open_lanes = []
+            self._lane_request_pub.publish(msg)
+            self._log(
+                f"[AVOID] Auto-closing lanes {new_closures} for {self.name}"
             )
+        else:
+            self._log(
+                f"[AVOID] {self.name} Lanes {lanes_to_close} already closed")
+
+    def _reopen_auto_closed_lanes(self):
+        """Reopen lanes that were auto-closed due to obstacles.
+
+        During obstacle avoidance, lanes must stay closed until the robot
+        has actually moved away from the obstacle. Reopening them in
+        follow_new_path would defeat the purpose of closing them.
+        """
+        if not self._auto_closed_lanes:
+            return
+
+        # Only reopen if the robot is NOT currently stuck at an obstacle.
+        # If requires_replan returns True, the robot is still in
+        # MODE_WAITING and we need to keep lanes closed.
+        try:
+            still_blocked = self.api.requires_replan(self.name)
+        except Exception:
+            still_blocked = False
+
+        if still_blocked:
+            self._log(
+                f"[AVOID] {self.name} Keeping lanes "
+                f"{list(self._auto_closed_lanes.keys())} CLOSED "
+                f"(robot still blocked by obstacle)")
+            return
+
+        lanes_to_open = list(self._auto_closed_lanes.keys())
+        self._auto_closed_lanes.clear()
+
+        msg = LaneRequest()
+        msg.fleet_name = self.fleet_name
+        msg.close_lanes = []
+        msg.open_lanes = lanes_to_open
+        self._lane_request_pub.publish(msg)
+        self._log(
+            f"[AVOID] Reopening auto-closed lanes {lanes_to_open} "
+            f"for {self.name} (obstacle cleared)")
+
+    def _check_auto_reopen_lanes(self):
+        """Safety timeout: reopen auto-closed lanes after 120 seconds
+        to avoid permanently blocking routes for other robots."""
+        now = time.time()
+        lanes_to_reopen = []
+        for lane_idx, close_time in list(self._auto_closed_lanes.items()):
+            if now - close_time > 120.0:
+                lanes_to_reopen.append(lane_idx)
+
+        if lanes_to_reopen:
+            for lane_idx in lanes_to_reopen:
+                del self._auto_closed_lanes[lane_idx]
+            msg = LaneRequest()
+            msg.fleet_name = self.fleet_name
+            msg.close_lanes = []
+            msg.open_lanes = lanes_to_reopen
+            self._lane_request_pub.publish(msg)
+            self.node.get_logger().info(
+                f"Safety timeout: reopening lanes {lanes_to_reopen} "
+                f"for {self.name}")
+
+    def _log(self, msg):
+        """Write a timestamped message to the avoid debug log file
+        AND output it via ROS logger."""
+        ts = time.strftime('%H:%M:%S', time.localtime())
+        line = f"[{ts}] {msg}\n"
+        self._avoid_log_file.write(line)
+        self._avoid_log_file.flush()
+        if msg.startswith('[AVOID]'):
+            self.node.get_logger().info(msg)
+        elif 'Cannot' in msg or 'warn' in msg.lower():
+            self.node.get_logger().warn(msg)
+        else:
+            self.node.get_logger().info(msg)
 
     def follow_new_path(
             self,
@@ -257,13 +428,54 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
         if self.debug:
             plan_id = self.update_handle.unstable_current_plan_id()
             print(f'follow_new_path for {self.name} with PlanId {plan_id}')
-        self.interrupt()
+
+        # CRITICAL FIX: During obstacle avoidance, do NOT call interrupt().
+        # interrupt() kills the _follow_path thread, which means the robot
+        # never gets to execute any path. RMF sends new paths async after
+        # each replan(), creating an infinite cycle:
+        #   replan → RMF returns path → follow_new_path → interrupt → kill
+        #   → requires_replan still True → replan → repeat
+        #
+        # Instead, during obstacle avoidance we do a "soft update":
+        # update waypoints in-place and let the running _follow_path loop
+        # pick up changes on its next iteration.
+        in_avoidance = bool(self._auto_closed_lanes)
+
         with self._lock:
+            if in_avoidance and self._follow_path_thread is not None \
+                    and self._follow_path_thread.is_alive():
+                # Soft update: update waypoints in-place, reset navigation
+                # state so the running _follow_path picks up new targets.
+                # Clear awaiting flag since we received a new path.
+                self._awaiting_rmf_response = False
+                self._awaiting_rmf_since = None
+                self._log(
+                    f"[AVOID] {self.name} follow_new_path: soft update "
+                    f"(avoidance active, skipping interrupt+restart)")
+                self.remaining_waypoints = self.filter_waypoints(waypoints)
+                self.state = RobotState.IDLE
+                wp_count = len(waypoints) if waypoints else 0
+                self.node.get_logger().info(
+                    f"Received new path for {self.name} "
+                    f"(raw_wps={wp_count}, soft-update)")
+                return
+
+            # Normal path: full interrupt + restart
+            self.interrupt()
             self._follow_path_thread = None
             self._quit_path_event.clear()
             self.clear()
 
-            self.node.get_logger().info(f"Received new path for {self.name}")
+            # NOTE: Do NOT reopen auto-closed lanes here.
+            # During obstacle avoidance, lanes must stay closed until the
+            # robot has actually completed its path or the safety timeout
+            # expires. Reopening here creates a race condition where RMF's
+            # new plan arrives while the robot is still blocked.
+
+            wp_count = len(waypoints) if waypoints else 0
+            self.node.get_logger().info(
+                f"Received new path for {self.name} "
+                f"(raw_wps={wp_count})")
 
             self.remaining_waypoints = self.filter_waypoints(waypoints)
             assert next_arrival_estimator is not None
@@ -319,8 +531,31 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
                             self._quit_path_event.wait(0.1)
 
                     elif self.state == RobotState.MOVING:
-                        if self.api.requires_replan(self.name):
-                            self.replan()
+                        _replan_needed = self.api.requires_replan(self.name)
+                        if _replan_needed:
+                            # Check if RMF timeout expired (no response after 15s)
+                            if self._awaiting_rmf_response:
+                                if self._awaiting_rmf_since is not None:
+                                    elapsed = (
+                                        self.adapter.now() -
+                                        self._awaiting_rmf_since
+                                    ).total_seconds()
+                                    if elapsed >= 15.0:
+                                        self._log(
+                                            f"[AVOID] {self.name} RMF timeout "
+                                            f"({elapsed:.1f}s), retrying replan")
+                                        self._awaiting_rmf_response = False
+                                    else:
+                                        # Still waiting for RMF, skip replan
+                                        self._log(
+                                            f"[AVOID] {self.name} waiting for "
+                                            f"RMF response ({elapsed:.1f}s "
+                                            f"< 15s timeout)")
+                            if not self._awaiting_rmf_response:
+                                self._log(
+                                    f"[AVOID] {self.name} MOVING: "
+                                    f"requires_replan=True, calling replan")
+                                self.replan(close_lane=True)
 
                         if self._quit_path_event.wait(0.1):
                             return
@@ -381,6 +616,7 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
                 if (not self.remaining_waypoints) \
                         and self.state == RobotState.IDLE:
                     path_finished_callback()
+                    self._reopen_auto_closed_lanes()
                     self.node.get_logger().info(
                         f"Robot {self.name} has successfully navigated along "
                         f"requested path."
@@ -510,6 +746,7 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
             self.battery_soc = self.get_battery_soc()
             if self.update_handle is not None:
                 self.update_state()
+                self._check_auto_reopen_lanes()
             sleep_duration = float(1.0/self.update_frequency)
             self.sleep_for(sleep_duration)
 
@@ -687,8 +924,8 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
 
                         return_waypoint = lane.entry.waypoint_index
                         reverse_lane = \
-                            self.graph.lane_from(lane.entry.waypoint_index,
-                                                 lane.exit.waypoint_index)
+                            self.graph.lane_from(lane.exit.waypoint_index,
+                                                 lane.entry.waypoint_index)
 
                         with self._lock:
                             if reverse_lane:

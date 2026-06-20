@@ -4,8 +4,17 @@
   <arg name="use_sim_time" default="true"/>
   <arg name="headless" default="true"/>
   <arg name="use_rviz" default="false"/>
-  <arg name="scan_rate" default="10.0"/>
-  <arg name="robot_name" default="tinyRobot1"/>
+
+  <!--
+    Office simulation with perception and mapping.
+    Includes:
+      - base office simulation (Gazebo + RMF fleet adapter + fleet manager)
+      - synthetic lidar (generates /scan from building map + robot pose)
+      - scan mapper (processes /scan for mapping/localization)
+
+    Note: Gazebo's built-in gpu_lidar may not publish reliable /scan data
+    in all configurations, so we use synthetic lidar as fallback.
+  -->
 
   <include file="$(find-pkg-share office)/launch/office.launch.xml">
     <arg name="use_sim_time" value="$(var use_sim_time)"/>
@@ -13,14 +22,17 @@
     <arg name="use_rviz" value="$(var use_rviz)"/>
   </include>
 
+  <!-- Synthetic lidar: generates LaserScan from robot state + wall map -->
   <node pkg="office"
         exec="office_synthetic_lidar.py"
         name="office_synthetic_lidar"
-        output="screen"
-        args="--robot-name $(var robot_name) --rate $(var scan_rate)">
+        output="screen">
     <param name="use_sim_time" value="$(var use_sim_time)"/>
+    <param name="robot_name" value="tinyRobot1"/>
+    <param name="rate" value="10.0"/>
   </node>
 
+  <!-- Scan mapper: processes /scan for SLAM/mapping -->
   <node pkg="office"
         exec="office_scan_mapper.py"
         name="office_scan_mapper"

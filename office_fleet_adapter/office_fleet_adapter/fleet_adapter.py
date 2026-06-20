@@ -90,10 +90,23 @@ def initialize_fleet(config_yaml, nav_graph_path, node, use_sim_time):
 
     # Adapter
     fleet_name = fleet_config['name']
-    adapter = adpt.Adapter.make(f'{fleet_name}_fleet_adapter')
+    adapter = None
+    max_retries = 10
+    for attempt in range(1, max_retries + 1):
+        adapter = adpt.Adapter.make(f'{fleet_name}_fleet_adapter')
+        if adapter is not None:
+            node.get_logger().info(
+                f"Fleet adapter initialized on attempt {attempt}/{max_retries}")
+            break
+        node.get_logger().warn(
+            f"Adapter.make() returned None (attempt {attempt}/{max_retries}), "
+            "retrying in 2s...")
+        time.sleep(2.0)
+
     if use_sim_time:
         adapter.node.use_sim_time()
-    assert adapter, ("Unable to initialize fleet adapter. Please ensure "
+    assert adapter, ("Unable to initialize fleet adapter after "
+                     f"{max_retries} attempts. Please ensure "
                      "RMF Schedule Node is running")
     adapter.start()
     time.sleep(1.0)
